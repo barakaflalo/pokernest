@@ -271,6 +271,8 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .abar .btn small{font-size:12px;opacity:.85;font-weight:400}
 .abar .btn.sm{flex:0 0 50px}
 .abar .btn.fold{border-color:var(--bad);color:var(--bad)}
+.abar .btn.pn-pre{min-height:48px;font-size:14px;border-style:dashed;border-color:var(--line);color:var(--muted);background:transparent;box-shadow:none}
+.abar .btn.pn-pre[aria-pressed="true"]{border-style:solid;border-color:var(--acc);color:var(--accInk);background:var(--acc)}
 .abar .wait{flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;min-height:54px;text-align:center}
 .mytm{height:4px;margin:0 10px;border-radius:4px;background:var(--line);overflow:hidden}
 .mytm i{display:block;height:100%;width:100%;background:var(--acc);transition:width .25s linear}
@@ -1212,8 +1214,11 @@ const PKAI = (() => {
 
   /* ---------- decide ---------- */
   const SAMPLES = [70, 140, 220];
-  function act(v, level, rnd) {
+  /* a personality bends the measured logic a little; the neutral style ({}) is exactly what was measured.
+     tight: added to every threshold (+ plays fewer hands) · aggr: multiplies how often it bets/raises · bluff: chance to bet with nothing */
+  function act(v, level, rnd, style) {
     rnd = rnd || Math.random; level = Math.max(0, Math.min(2, level == null ? 1 : level));
+    const ST_ = style || {}, tight = ST_.tight || 0, aggr = ST_.aggr || 1, bluff = ST_.bluff || 0, pr = p => Math.min(.95, p * aggr);
     const o = v.opts; if (!o) return null;
     const me = v.seat, mine = v.cards[me];
     if (o.decide) return caribDecide(v, level, rnd);
@@ -1242,15 +1247,16 @@ const PKAI = (() => {
       if (eq > need) return { a: 'allin' };
       return o.check ? { a: 'check' } : (eq > po + .02 ? { a: 'call' } : { a: 'fold' });
     }
-    const strong = fair + (level === 2 ? .22 : .26), good = fair + (level === 2 ? .06 : .1);
+    const strong = fair + (level === 2 ? .22 : .26) + tight, good = fair + (level === 2 ? .06 : .1) + tight;
     if (o.check) {
       if (o.raise && eq > strong) return { a: 'raise', to: raiseTo(level === 2 ? .55 + rnd() * .3 : .6) };
-      if (o.raise && eq > good && rnd() < (level === 2 ? .55 : .35)) return { a: 'raise', to: raiseTo(.45) };
-      if (level === 2 && o.raise && !lastStreet && opps === 1 && rnd() < .14) return { a: 'raise', to: raiseTo(.5) };     // a little pressure heads-up
+      if (o.raise && eq > good && rnd() < pr(level === 2 ? .55 : .35)) return { a: 'raise', to: raiseTo(.45) };
+      if (bluff && o.raise && opps <= 2 && rnd() < bluff) return { a: 'raise', to: raiseTo(.5 + rnd() * .3) };           // a bluffer's bet
+      if (level === 2 && o.raise && !lastStreet && opps === 1 && rnd() < pr(.14)) return { a: 'raise', to: raiseTo(.5) };     // a little pressure heads-up
       return { a: 'check' };
     }
-    const margin = level === 2 ? .02 : .05;
-    if (o.raise && eq > strong + .08 && rnd() < .75) return { a: 'raise', to: raiseTo(level === 2 ? .8 : .7) };
+    const margin = (level === 2 ? .02 : .05) + tight;
+    if (o.raise && eq > strong + .08 && rnd() < pr(.75)) return { a: 'raise', to: raiseTo(level === 2 ? .8 : .7) };
     const implied = !lastStreet && level === 2 ? .03 : 0;
     if (eq + implied > po + margin) return { a: 'call' };
     return { a: 'fold' };
@@ -1286,7 +1292,7 @@ if (typeof module !== 'undefined') module.exports = PKAI;
 /* =====================================================================
    PokerNest — app core (storage · settings · screens · cards · sound · backup)
    ===================================================================== */
-const APP_VERSION = '1.1.1';
+const APP_VERSION = '1.2.0';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const P = 'poker_';
@@ -1378,6 +1384,17 @@ const cardTxt = c => iso(cardName(c));
 const VARS = ['holdem', 'omaha', 'draw5', 'three', 'carib'];
 const LEVELS = { holdem: [0, 1, 2], omaha: [0, 1], draw5: [0, 1, 2], three: [0, 1, 2], carib: [2] };   // only levels that passed measurement
 const LVL = ['lvEasy', 'lvMed', 'lvHard'];
+const PERSONAS = [
+  { av: 4, style: { aggr: 1.6, tight: -.03 } },      // 0 Danny — aggressive
+  { av: 9, style: { tight: .06, aggr: .6 } },        // 1 Grandma Rachel — very tight, passive
+  { av: 2, style: { tight: .03, aggr: 1.4 } },       // 2 Mickey the Shark — tight-aggressive
+  { av: 6, style: { tight: -.05, aggr: .7 } },       // 3 Yossi — calls almost everything
+  { av: 11, style: { bluff: .12, aggr: 1.2 } },      // 4 Avi the Bluffer
+  { av: 8, style: {} },                              // 5 Noa — balanced
+  { av: 3, style: {} },                              // 6 The Professor — by the book
+  { av: 12, style: { tight: .03, aggr: 1.4 } }       // 7 Shira — sharp and careful
+];
+function pickPersonas(seats) { const pool = PERSONAS.map((_, i) => i).sort(() => Math.random() - .5), out = {}; seats.forEach((s, i) => out[s] = pool[i % pool.length]); return out; }
 const vName = v => T('v_' + v);
 
 /* ---------- sound (synthesised, no files) + vibration ---------- */
@@ -1440,6 +1457,9 @@ function restore(file) {
 
 /* ---- i18n/he.js ---- */
 LANG.he = {
+preCF:"צ'ק/קפל", preAny:"השווה הכל",
+bn_0:"דני", bn_1:"סבתא רחל", bn_2:"מיקי הכריש", bn_3:"יוסי", bn_4:"אבי הבלופר", bn_5:"נועה", bn_6:"הפרופסור", bn_7:"שירה",
+bs_0:"אגרסיבי — מהמר ומעלה הרבה, לא נבהל", bs_1:"זהירה מאוד — משחקת רק ידיים טובות. כשהיא מהמרת, תיזהר", bs_2:"סבלני ומסוכן — מחכה ליד, ואז לוחץ", bs_3:"משווה כמעט הכל — קשה לבלף אותו", bs_4:"אוהב לבלף — לא כל הימור שלו אמיתי", bs_5:"מאוזנת — קשה לקרוא אותה", bs_6:"משחק לפי הספר", bs_7:"חדה וזהירה — כשהיא מעלה, יש לה משהו",
 youWonX:'זכית {0}', dealerNoQualShort:'הדילר לא עבר', youWinPot:'הקופה שלך!', potTaken:'הקופה נלקחה',
 cardBack:'גב הקלף',
 pnAvatar:'בחירת אווטר',
@@ -1513,6 +1533,9 @@ rules_carib:"<p>משחק נגד <b>הדילר</b> (הקופה), לא נגד שא
 
 /* ---- i18n/en.js ---- */
 LANG.en = {
+preCF:"Check/Fold", preAny:"Call any",
+bn_0:"Danny", bn_1:"Grandma Rachel", bn_2:"Mickey the Shark", bn_3:"Yossi", bn_4:"Avi the Bluffer", bn_5:"Noa", bn_6:"The Professor", bn_7:"Shira",
+bs_0:"Aggressive — bets and raises a lot, never scared", bs_1:"Very tight — plays only good hands. When she bets, watch out", bs_2:"Patient and dangerous — waits for a hand, then pushes", bs_3:"Calls almost everything — hard to bluff", bs_4:"Loves to bluff — not every bet is real", bs_5:"Balanced — hard to read", bs_6:"Plays by the book", bs_7:"Sharp and careful — when she raises, she has something",
 youWonX:'You won {0}', dealerNoQualShort:'Dealer missed', youWinPot:'Pot is yours!', potTaken:'Pot taken',
 cardBack:'Card back',
 pnAvatar:'Choose avatar',
@@ -1586,6 +1609,9 @@ rules_carib:"<p>You play against <b>the dealer</b> (the house), not the other pl
 
 /* ---- i18n/ru.js ---- */
 LANG.ru = {
+preCF:"Чек/Пас", preAny:"Колл любой",
+bn_0:"Дэнни", bn_1:"Бабушка Рахель", bn_2:"Мики-Акула", bn_3:"Йоси", bn_4:"Ави-Блефун", bn_5:"Ноа", bn_6:"Профессор", bn_7:"Шира",
+bs_0:"Агрессивный — много ставит и повышает, не боится", bs_1:"Очень осторожная — играет только хорошие руки. Если ставит — берегись", bs_2:"Терпеливый и опасный — ждёт руку и давит", bs_3:"Коллирует почти всё — его трудно переблефовать", bs_4:"Любит блефовать — не каждая ставка настоящая", bs_5:"Сбалансированная — её трудно читать", bs_6:"Играет по учебнику", bs_7:"Острая и осторожная — если повышает, у неё что-то есть",
 youWonX:'Вы выиграли {0}', dealerNoQualShort:'Дилер не прошёл', youWinPot:'Банк ваш!', potTaken:'Банк забран',
 cardBack:'Рубашка карт',
 pnAvatar:'Выбрать аватар',
@@ -1659,6 +1685,9 @@ rules_carib:"<p>Игра против <b>дилера</b> (заведения), 
 
 /* ---- i18n/es.js ---- */
 LANG.es = {
+preCF:"Pasar/Retirarse", preAny:"Igualar todo",
+bn_0:"Danny", bn_1:"Abuela Raquel", bn_2:"Miki el Tiburón", bn_3:"Yossi", bn_4:"Avi el Farolero", bn_5:"Noa", bn_6:"El Profesor", bn_7:"Shira",
+bs_0:"Agresivo — apuesta y sube mucho, no se asusta", bs_1:"Muy cauta — solo juega buenas manos. Si apuesta, cuidado", bs_2:"Paciente y peligroso — espera su mano y presiona", bs_3:"Iguala casi todo — difícil de engañar", bs_4:"Le encanta farolear — no toda apuesta es real", bs_5:"Equilibrada — difícil de leer", bs_6:"Juega según el manual", bs_7:"Aguda y cauta — si sube, tiene algo",
 youWonX:'Ganaste {0}', dealerNoQualShort:'El crupier no califica', youWinPot:'¡El bote es tuyo!', potTaken:'Bote ganado',
 cardBack:'Reverso de las cartas',
 pnAvatar:'Elegir avatar',
@@ -1732,6 +1761,9 @@ rules_carib:"<p>Se juega contra <b>el crupier</b> (la casa), no contra los demá
 
 /* ---- i18n/ar.js ---- */
 LANG.ar = {
+preCF:"تمرير/انسحاب", preAny:"مجاراة أي مبلغ",
+bn_0:"داني", bn_1:"الجدة راحيل", bn_2:"ميكي القرش", bn_3:"يوسي", bn_4:"آفي المخادع", bn_5:"نوعا", bn_6:"البروفيسور", bn_7:"شيرا",
+bs_0:"هجومي — يراهن ويرفع كثيرًا ولا يخاف", bs_1:"حذرة جدًا — تلعب الأيدي الجيدة فقط. إذا راهنت فاحذر", bs_2:"صبور وخطير — ينتظر يدًا ثم يضغط", bs_3:"يجاري كل شيء تقريبًا — يصعب خداعه", bs_4:"يحب الخداع — ليس كل رهان حقيقيًا", bs_5:"متوازنة — يصعب قراءتها", bs_6:"يلعب وفق الكتاب", bs_7:"حادة وحذرة — إذا رفعت فلديها شيء",
 youWonX:'ربحت {0}', dealerNoQualShort:'الموزّع لم يتأهل', youWinPot:'الوعاء لك!', potTaken:'أُخذ الوعاء',
 cardBack:'ظهر الورق',
 pnAvatar:'اختيار الصورة الرمزية',
@@ -1811,6 +1843,7 @@ rules_carib:"<p>تلعب ضد <b>الموزّع</b> (الكازينو) لا ضد
    ===================================================================== */
 let G = LS.get('game', null);
 const FAST = /[?&]fast=1/.test(location.search);       // tests only: no human-friendly pauses
+let PRE = null, PRE_T = null;
 let aiT = null, nextT = null, PASS_ON = false, RAISE = null, DSEL = [], BUSY = false, WATCH = false, LAST_BOARD = 0, EQC = null;
 const saveGame = () => { if (G) LS.set('game', G); else LS.del('game'); };
 const isGuest = () => !!(G && G.mode === 'online' && G.net && G.net.role === 'guest');
@@ -1830,8 +1863,10 @@ function curView() {
   if (isGuest()) return G.v;
   return G.M ? PK.view(G.M, mySeat()) : null;
 }
+const personaOf = s => G && G.persona && G.persona[s] != null ? PERSONAS[G.persona[s]] : null;
 function nameOf(v, s) {
   if (s == null || s < 0) return '';
+  if (isBot(s) && personaOf(s)) return T('bn_' + G.persona[s]);
   if (isBot(s)) { const k = Object.keys(G.bots).map(Number).sort((a, b) => a - b).indexOf(s) + 1; return (v && v.names[s]) || T('cpuN', k); }
   if (G && G.mode === 'cpu' && s === 0) return ST.name || T('you');
   return (v && v.names[s]) || T('player') + ' ' + (s + 1);
@@ -1847,13 +1882,13 @@ function matchCfg(o) {
 function startCpu(o) {
   const n = 1 + o.opps, bots = {}; for (let s = 1; s < n; s++) bots[s] = o.level;
   const M = PK.newMatch(Object.assign(matchCfg(o), { names: Array(n).fill(''), dealer: Math.floor(Math.random() * n) }));
-  G = { mode: 'cpu', var: o.var, level: o.level, M, bots, id: Date.now(), hints: 0, counted: {} };
+  G = { mode: 'cpu', var: o.var, level: o.level, M, bots, persona: pickPersonas(Object.keys(bots).map(Number)), id: Date.now(), hints: 0, counted: {} };
   freshHand(); saveGame(); show('game'); afterChange();
 }
 function startTwo(o) {
   const names = o.names.concat(Array(o.cpus).fill('')), bots = {}; for (let i = o.names.length; i < names.length; i++) bots[i] = o.level;
   const M = PK.newMatch(Object.assign(matchCfg(o), { names, dealer: Math.floor(Math.random() * names.length) }));
-  G = { mode: 'two', var: o.var, level: o.level, M, bots, id: Date.now(), hints: 0, counted: {}, viewer: null };
+  G = { mode: 'two', var: o.var, level: o.level, M, bots, persona: pickPersonas(Object.keys(bots).map(Number)), id: Date.now(), hints: 0, counted: {}, viewer: null };
   freshHand(); saveGame(); show('game'); afterChange();
 }
 function freshHand() { RAISE = null; DSEL = []; EQC = null; LAST_BOARD = 0; WATCH = false; }
@@ -1906,7 +1941,7 @@ function scheduleAI() {
   aiT = setTimeout(() => {
     if (aiSeat() !== s) return;
     const v = PK.view(G.M, s);
-    const a = sit ? PK.autoAct(G.M, s) : PKAI.act(v, G.bots[s]);
+    const a = sit ? PK.autoAct(G.M, s) : PKAI.act(v, G.bots[s], null, personaOf(s) ? personaOf(s).style : null);
     if (!a || !PK.apply(G.M, s, a)) { logErr('ai illegal ' + JSON.stringify(a)); const b = PK.autoAct(G.M, s); if (!b || !PK.apply(G.M, s, b)) return; }
     if (!WATCH) actSound(a);
     afterChange();
@@ -2053,6 +2088,7 @@ let PN_PREV = null;
 function pnAvatar(v, s) {
   if (G.mode !== 'two' && s === v.seat) return Math.max(1, Math.min(12, Number(ST.avatar) || 1));
   if (G.mode === 'online' && !isBot(s)) return 1 + Array.from(nameOf(v,s)).reduce((h,c) => (h*31+c.codePointAt(0))>>>0,0)%12;
+  if (isBot(s) && personaOf(s)) return personaOf(s).av;
   return 1 + s%12;
 }
 function pnStack(amount) {
@@ -2222,6 +2258,11 @@ function renderBar(v) {
     else if (G.mode === 'cpu' && G.M.out[0] && !WATCH) h = '<button class="btn main" id="bOutOpts">' + esc(T('whatNow')) + '</button>';
     else if (v.phase === 'wait') h = '<div class="wait">' + esc(T('waitPlayers')) + '</div>';
     else h = '<button class="btn main" id="bNextH">' + esc(T('nextHand')) + ' <small data-next></small></button>';
+  } else if (!myTurn && canPre(v)) {
+    const toCall = Math.max(0, v.cur - v.bet[me]), amt = Math.min(toCall, v.stacks[me]), on = k => PRE && PRE.kind === k ? 'true' : 'false';
+    h = toCall === 0
+      ? '<button class="btn pn-pre" data-pre="cf" aria-pressed="' + on('cf') + '">' + esc(T('preCF')) + '</button><button class="btn pn-pre" data-pre="c" aria-pressed="' + on('c') + '">' + esc(T('check')) + '</button><button class="btn pn-pre" data-pre="any" aria-pressed="' + on('any') + '">' + esc(T('preAny')) + '</button>'
+      : '<button class="btn pn-pre" data-pre="cf" aria-pressed="' + on('cf') + '">' + esc(T('fold')) + '</button><button class="btn pn-pre" data-pre="call" data-amt="' + amt + '" aria-pressed="' + on('call') + '">' + esc(T('call')) + '<small>' + chips(amt) + '</small></button><button class="btn pn-pre" data-pre="any" aria-pressed="' + on('any') + '">' + esc(T('preAny')) + '</button>';
   } else if (!myTurn) h = '<div class="wait">' + esc(v.turn != null ? T('waitFor', nameOf(v, v.turn)) : '') + '</div>';
   else if (o.decide) h = '<button class="btn sm" id="bHint" aria-label="hint">💡</button><button class="btn fold" data-a="fold">' + esc(T('fold')) + '<small>' + esc(T('loseAnte', chips(v.ante))) + '</small></button><button class="btn main" data-a="call" ' + (o.can ? '' : 'disabled') + '>' + esc(T('play')) + '<small>' + chips(o.callAmt) + '</small></button>';
   else if (o.draw) { const k = DSEL.length; h = '<button class="btn sm" id="bHint" aria-label="hint">💡</button><button class="btn main" id="bDraw">' + esc(k ? T('drawN', k) : T('standPat')) + '<small>' + esc(T('pickUpTo', o.max)) + '</small></button>'; }
@@ -2233,8 +2274,30 @@ function renderBar(v) {
     if (o.raise) h += '<button class="btn main" id="bRaise">' + esc(o.isBet ? T('bet') : T('raise')) + '</button>';
   }
   bar.innerHTML = h;
+  if (myTurn && PRE && PRE.key !== preKey(v)) PRE = null;                              // set in an earlier round — never carry it over
+  if (myTurn && PRE && !PRE.firing && o && !o.decide && !o.draw) { PRE.firing = true; clearTimeout(PRE_T); PRE_T = setTimeout(firePre, 220); }
   if (RAISE != null && myTurn) renderRaise(v); else rp.innerHTML = '';
   const mt = $('#myTm'); mt.classList.toggle('hide', !(myTurn && G.tEnd));
+}
+/* pre-actions: only on your own seat, in a betting round, while someone else is acting; cleared when the round moves on */
+function preKey(v) { return G.id + ':' + v.no + ':' + v.street; }
+function canPre(v) {
+  const me = v.seat;
+  if (!G || G.mode === 'two' || me < 0 || v.phase !== 'bet' || v.st[me] !== 'in' || v.turn == null) { PRE = null; return false; }
+  if (PRE && PRE.key !== preKey(v)) PRE = null;
+  const toCall = Math.max(0, v.cur - v.bet[me]);
+  if (PRE && PRE.kind === 'c' && toCall > 0) PRE = null;                                 // "check" no longer possible — decide yourself
+  if (PRE && PRE.kind === 'call' && Math.min(toCall, v.stacks[me]) !== PRE.amt) PRE = null;  // the price changed
+  return true;
+}
+function firePre() {
+  const v = curView(), p = PRE; PRE = null; if (!v || !p || v.turn !== v.seat || !v.opts) return;
+  const o = v.opts; let a = null;
+  if (p.kind === 'cf') a = o.check ? { a: 'check' } : { a: 'fold' };
+  else if (p.kind === 'c') a = o.check ? { a: 'check' } : null;
+  else if (p.kind === 'call') a = o.toCall === p.amt ? { a: 'call' } : null;
+  else if (p.kind === 'any') a = o.check ? { a: 'check' } : { a: 'call' };
+  if (a) doAct(a); else renderGame();
 }
 /* raise panel: quick sizes + slider */
 function presets(o) {
@@ -2284,6 +2347,7 @@ function bindGame() {
     const b = e.target.closest('button'); if (!b || b.disabled) return;
     const v = curView(); if (!v) return;
     if (b.dataset.a) return doAct({ a: b.dataset.a });
+    if (b.dataset.pre) { const k = b.dataset.pre; PRE = PRE && PRE.kind === k ? null : { kind: k, amt: +(b.dataset.amt || 0), key: preKey(v) }; beep('tick'); renderBar(v); return; }
     if (b.id === 'bRaise') { RAISE = v.opts.minTo; renderBar(v); return; }
     if (b.id === 'bRCancel') { RAISE = null; renderBar(v); return; }
     if (b.id === 'bRGo') { const to = RAISE; return doAct(to >= v.opts.allTo ? { a: 'allin' } : { a: 'raise', to }); }
@@ -2307,6 +2371,11 @@ function bindGame() {
     beep('card'); renderMine(v); renderBar(v);
   });
   $('#gMenu').onclick = gameMenu;
+  $('#seats').addEventListener('click', e => {
+    const st = e.target.closest('.st'); if (!st) return; const s = +st.dataset.seat, p = personaOf(s); if (!isBot(s) || !p) return;
+    const v = curView(), o = overlay('<div style="text-align:center"><img src="av-' + String(p.av).padStart(2, '0') + '.webp" alt="" width="96" height="96" style="border-radius:50%;border:3px solid var(--acc)"><h3 style="margin-top:8px">' + esc(nameOf(v, s)) + '</h3><p style="font-size:16px">' + esc(T('bs_' + G.persona[s])) + '</p><p class="muted">' + esc(T('chooseLevel')) + ': ' + esc(T(LVL[G.bots[s]])) + '</p></div><div class="row"><button class="btn main" data-c>' + esc(T('close')) + '</button></div>', 'center');
+    o.querySelector('[data-c]').onclick = () => closeOv(o);
+  });
   window.addEventListener('resize', () => { if (SCREEN === 'game') renderGame(); });
 }
 function showHint(v) {
@@ -2540,6 +2609,7 @@ function netStart() {
   if (!isHostOnline()) return;
   const humans = humansIn().slice(0, 6), c = G.cfg, nb = Math.min(c.bots || 0, 6 - humans.length);
   G.map = humans.concat(Array(nb).fill(null)); G.bots = {}; for (let i = humans.length; i < G.map.length; i++) G.bots[i] = c.botLvl;
+  G.persona = pickPersonas(Object.keys(G.bots).map(Number));
   const names = G.map.map((ls, i) => ls == null ? '' : (i === 0 ? ST.name || T('player') : nameAt(ls) || T('friend')));
   G.var = c.var;
   G.M = PK.newMatch(Object.assign(matchCfg({ var: c.var, stack: c.stack, bb: c.bb, structure: c.structure, every: c.every, limit: c.limit }), { names, dealer: Math.floor(Math.random() * names.length) }));
@@ -2555,7 +2625,7 @@ function netBroadcast() {
   if (!isHostOnline() || !G.M || !LINK.session || !G.map) return;
   const offl = {}; for (let ms = 1; ms < G.map.length; ms++) if (G.map[ms] != null && !rosterOnline(G.map[ms])) offl[ms] = 1;
   const H = G.M.H, end = H && H.phase === 'end';
-  const base = { type: 'view', bots: G.bots, map: G.map, offl, cfg: G.cfg, mid: G.id, left: G.tEnd ? Math.max(0, G.tEnd - Date.now()) : 0, next: G.nextAt ? Math.max(0, G.nextAt - Date.now()) : 0 };
+  const base = { type: 'view', bots: G.bots, persona: G.persona || {}, map: G.map, offl, cfg: G.cfg, mid: G.id, left: G.tEnd ? Math.max(0, G.tEnd - Date.now()) : 0, next: G.nextAt ? Math.max(0, G.nextAt - Date.now()) : 0 };
   const send = (ls, ms) => {
     const v = PK.view(G.M, ms);
     if (end && ms >= 0) v.replay = replayOf(G.M, ms);
@@ -2588,7 +2658,7 @@ function netMsg(m, from) {
     if (prev && !newHand && v.log.length > prev.log.length) { const e = v.log[v.log.length - 1]; if (e[0] !== v.seat && e[0] >= 0) actSound({ a: e[1] === 'raise' || e[1] === 'bet' ? 'raise' : e[1] }); }
     if (prev && prev.turn !== v.turn && v.turn === v.seat && v.phase !== 'end') { beep('turn'); buzz(20); }
     if (G.mid !== m.mid) { G.counted = {}; G.hints = 0; }
-    G.v = v; G.mid = m.mid; G.id = m.mid; G.bots = m.bots || {}; G.map = m.map || null; G.offl = m.offl || {}; G.cfg = m.cfg || G.cfg; G.var = v.g; BUSY = false; G.spect = v.seat < 0;
+    G.v = v; G.mid = m.mid; G.id = m.mid; G.bots = m.bots || {}; G.persona = m.persona || {}; G.map = m.map || null; G.offl = m.offl || {}; G.cfg = m.cfg || G.cfg; G.var = v.g; BUSY = false; G.spect = v.seat < 0;
     G.tEnd = m.left ? Date.now() + m.left : null; G.nextAt = m.next ? Date.now() + m.next : null;
     if (v.phase === 'end' && v.seat >= 0 && !G.counted[G.mid + ':' + v.no]) { G.counted[G.mid + ':' + v.no] = 1; guestHandEnd(v); }
     saveGame();
