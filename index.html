@@ -327,7 +327,7 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 :root{--pn-white:#fff9ed;--pn-black:#454c5c;--pn-red:#b84247;--pn-green:#3a8662;--pn-purple:#8662ad;--pn-yellow:#d8b956;--pn-shadow:rgba(0,0,0,.4)}
 .oval{background-image:url('felt-1.webp'),radial-gradient(ellipse at 50% 38%,var(--felt1),var(--felt2) 80%);background-blend-mode:soft-light,normal;background-size:256px,cover;border-color:var(--rail1);box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 32px var(--pn-shadow),0 0 0 3px var(--rail2),0 16px 25px var(--pn-shadow)}
 .oval::before{content:'';position:absolute;inset:-8px;border:1px dashed var(--acc);border-radius:inherit;opacity:.45;pointer-events:none}
-.oval::after{content:'';width:110px;height:37px;background:url('table-logo.webp') center/contain no-repeat;opacity:.3}
+.oval::after{content:'';width:132px;height:44px;background:url('table-logo.webp') center/contain no-repeat;opacity:.55}
 .pc{box-shadow:0 3px 6px var(--pn-shadow)}
 .pc .pn-court{position:absolute;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .pn-backs{display:flex;gap:12px}.pn-back-pick{width:58px;padding:3px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);cursor:pointer}.pn-back-pick img{display:block;width:100%;border-radius:6px}.pn-back-pick[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
@@ -371,6 +371,9 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 
+
+/* court art may reach the corners — a cream halo keeps the index readable */
+.pc .ix{text-shadow:0 0 2px var(--cardFace),0 0 3px var(--cardFace),0 0 4px var(--cardFace)}
 
 </style>
 </head>
@@ -1292,7 +1295,7 @@ if (typeof module !== 'undefined') module.exports = PKAI;
 /* =====================================================================
    PokerNest — app core (storage · settings · screens · cards · sound · backup)
    ===================================================================== */
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.2.1';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const P = 'poker_';
@@ -1384,15 +1387,15 @@ const cardTxt = c => iso(cardName(c));
 const VARS = ['holdem', 'omaha', 'draw5', 'three', 'carib'];
 const LEVELS = { holdem: [0, 1, 2], omaha: [0, 1], draw5: [0, 1, 2], three: [0, 1, 2], carib: [2] };   // only levels that passed measurement
 const LVL = ['lvEasy', 'lvMed', 'lvHard'];
-const PERSONAS = [
-  { av: 4, style: { aggr: 1.6, tight: -.03 } },      // 0 Danny — aggressive
-  { av: 9, style: { tight: .06, aggr: .6 } },        // 1 Grandma Rachel — very tight, passive
+const PERSONAS = [                                   // av = the portrait that fits the character (art 2026-10)
+  { av: 9, style: { aggr: 1.6, tight: -.03 } },      // 0 Danny — aggressive
+  { av: 3, style: { tight: .06, aggr: .6 } },        // 1 Grandma Rachel — very tight, passive
   { av: 2, style: { tight: .03, aggr: 1.4 } },       // 2 Mickey the Shark — tight-aggressive
-  { av: 6, style: { tight: -.05, aggr: .7 } },       // 3 Yossi — calls almost everything
-  { av: 11, style: { bluff: .12, aggr: 1.2 } },      // 4 Avi the Bluffer
-  { av: 8, style: {} },                              // 5 Noa — balanced
-  { av: 3, style: {} },                              // 6 The Professor — by the book
-  { av: 12, style: { tight: .03, aggr: 1.4 } }       // 7 Shira — sharp and careful
+  { av: 4, style: { tight: -.05, aggr: .7 } },       // 3 Yossi — calls almost everything
+  { av: 8, style: { bluff: .12, aggr: 1.2 } },       // 4 Avi the Bluffer
+  { av: 7, style: {} },                              // 5 Noa — balanced
+  { av: 11, style: {} },                             // 6 The Professor — by the book
+  { av: 10, style: { tight: .03, aggr: 1.4 } }       // 7 Shira — sharp and careful
 ];
 function pickPersonas(seats) { const pool = PERSONAS.map((_, i) => i).sort(() => Math.random() - .5), out = {}; seats.forEach((s, i) => out[s] = pool[i % pool.length]); return out; }
 const vName = v => T('v_' + v);
