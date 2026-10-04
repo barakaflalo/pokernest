@@ -21,8 +21,8 @@
 
 /* PokerNest service worker — network-first for pages, each shell file cached on its own,
    only the app root is ever stored as the page, other origins pass straight through. */
-const VERSION = 'pokernest-v3';
-const SHELL = ['./', 'manifest.json', 'icon-192.png', 'icon-512.png', 'privacy_policy.html', 'face-j.webp', 'face-q.webp', 'face-k.webp', 'back-1.webp', 'back-2.webp', 'av-01.webp', 'av-02.webp', 'av-03.webp', 'av-04.webp', 'av-05.webp', 'av-06.webp', 'av-07.webp', 'av-08.webp', 'av-09.webp', 'av-10.webp', 'av-11.webp', 'av-12.webp', 'felt-1.webp', 'felt-2.webp', 'felt-3.webp', 'table-logo.webp'];
+const VERSION = 'pokernest-v4';
+const SHELL = ['./', 'manifest.json', 'icon-192.png', 'icon-512.png', 'privacy_policy.html', 'face-j.webp', 'face-q.webp', 'face-k.webp', 'back-1.webp', 'back-2.webp', 'av-01.webp', 'av-02.webp', 'av-03.webp', 'av-04.webp', 'av-05.webp', 'av-06.webp', 'av-07.webp', 'av-08.webp', 'av-09.webp', 'av-10.webp', 'av-11.webp', 'av-12.webp', 'felt-1.webp', 'table-logo.webp'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => Promise.allSettled(SHELL.map(u => c.add(u)))).then(() => self.skipWaiting()));

@@ -328,7 +328,8 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .oval::after{content:'';width:110px;height:37px;background:url('table-logo.webp') center/contain no-repeat;opacity:.3}
 .pc{box-shadow:0 3px 6px var(--pn-shadow)}
 .pc .pn-court{position:absolute;width:100%;height:100%;object-fit:cover;pointer-events:none}
-.pc .ix{z-index:1}.pc.bk{background:var(--back1) url('back-1.webp') center/cover}.pc.bk::after{display:none}
+.pn-backs{display:flex;gap:12px}.pn-back-pick{width:58px;padding:3px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);cursor:pointer}.pn-back-pick img{display:block;width:100%;border-radius:6px}.pn-back-pick[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.pc .ix{z-index:1}.pc.bk{background:var(--back1) var(--pn-back,url('back-1.webp')) center/cover}.pc.bk::after{display:none}
 .pc.best{outline:2px solid var(--ok);outline-offset:1px}
 .pn-avatar{width:36px;height:36px;margin:-18px auto 2px;position:relative;border-radius:50%;background:var(--panel);box-shadow:0 2px 5px var(--pn-shadow)}
 .pn-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid var(--acc)}
@@ -352,6 +353,15 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .pn-avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.pn-avatar-pick{background:var(--panel2);border:2px solid var(--line);padding:3px;border-radius:50%;cursor:pointer;min-width:0}.pn-avatar-pick img{display:block;width:100%;border-radius:50%}.pn-avatar-pick[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
 .pn-result{background:var(--panel);color:var(--acc);padding:7px 10px;border:1px solid var(--acc);border-radius:12px;animation:pn-celebrate .5s ease-out}
 .pass .box{border:2px solid var(--acc);border-radius:24px}.places tr:nth-child(-n+3)>td{background:color-mix(in srgb,var(--acc) 10%,var(--panel))}
+.pn-banner{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:8;pointer-events:none;text-align:center;white-space:nowrap;padding:12px 22px 12px;border-radius:20px;background:rgba(8,8,8,.86);border:2px solid var(--acc);box-shadow:0 0 0 4px rgba(0,0,0,.35),0 0 28px color-mix(in srgb,var(--acc) 45%,transparent);animation:pn-bannerIn 2.4s cubic-bezier(.2,.9,.3,1.2) forwards}
+.pn-banner b{display:block;font-family:var(--disp);font-weight:400;font-size:clamp(30px,10vw,52px);line-height:1;color:var(--acc2);text-shadow:0 2px 0 var(--rail2),0 0 18px color-mix(in srgb,var(--acc) 70%,transparent),0 4px 14px rgba(0,0,0,.6)}
+.pn-banner span{display:block;margin-top:6px;color:#f3efe4;font-size:15px;font-weight:500}
+.pn-banner.big b{font-size:clamp(36px,12vw,64px)}
+@keyframes pn-bannerIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}22%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+.pn-flash{position:absolute;inset:0;z-index:7;pointer-events:none;border-radius:50%/46%;background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--acc2) 55%,transparent),transparent 65%);animation:pn-flash 1s ease-out forwards}
+@keyframes pn-flash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+.st.win .pn-avatar{animation:pn-winPulse 1s ease-in-out 3}
+@keyframes pn-winPulse{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--ok) 70%,transparent),0 0 22px var(--acc2)}}
 @keyframes pn-celebrate{from{transform:scale(.93);opacity:.4}to{transform:scale(1);opacity:1}}
 @media(max-width:380px){.pn-avatar{width:30px;height:30px;margin-top:-15px}.st .tm{width:38px;height:38px}.pn-game-art .pc{--w:26px}}
 @media(orientation:landscape) and (max-height:500px){.pn-avatar{width:26px;height:26px;margin-top:-12px}.st .tm{width:34px;height:34px}.st .cs{margin-bottom:9px}.st .nm{font-size:11px}.st .sk{font-size:12px}}
@@ -1276,7 +1286,7 @@ if (typeof module !== 'undefined') module.exports = PKAI;
 /* =====================================================================
    PokerNest — app core (storage · settings · screens · cards · sound · backup)
    ===================================================================== */
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const P = 'poker_';
@@ -1298,7 +1308,7 @@ try { navigator.storage && navigator.storage.persist && navigator.storage.persis
 
 /* ---------- settings ---------- */
 const DEF = {
-  avatar: 1, name: '', lang: 'he', theme: 'gold', mode: 'night', board: 'felt', four: false, sound: true, vib: true, speed: 'normal', showEq: false,
+  avatar: 1, back: 1, name: '', lang: 'he', theme: 'gold', mode: 'night', board: 'felt', four: false, sound: true, vib: true, speed: 'normal', showEq: false,
   variant: 'holdem', level: 1, opps: 3, structure: 'tour', stack: 1000, blinds: 20, every: 10, omahaLimit: 'pl', tutDone: false
 };
 const ST = Object.assign({}, DEF, LS.get('set', {}));
@@ -1325,6 +1335,7 @@ const THEME_COL = { gold: '#d4a940', silver: '#c9ced6', emerald: '#3fbf7f', ruby
 function applyLook() {
   const d = document.documentElement;
   d.dataset.theme = ST.theme; d.dataset.mode = ST.mode; d.dataset.board = ST.board; d.dataset.four = ST.four ? '1' : '0';
+  d.style.setProperty('--pn-back', "url('back-" + (ST.back === 2 ? 2 : 1) + ".webp')");
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = ST.mode === 'day' ? '#f4f2ec' : '#0a0a0a';
   const hm = $('#hMode'); if (hm) hm.textContent = ST.mode === 'day' ? '☀️' : '🌙';
 }
@@ -1379,12 +1390,19 @@ function beep(kind) {
     const t = AC.currentTime;
     const tone = (f, d, type, v, at) => { const o = AC.createOscillator(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t + (at || 0)); const gg = AC.createGain(); gg.gain.setValueAtTime(v || .12, t + (at || 0)); gg.gain.exponentialRampToValueAtTime(.0001, t + (at || 0) + d); o.connect(gg); gg.connect(AC.destination); o.start(t + (at || 0)); o.stop(t + (at || 0) + d + .02); };
     const noise = (dur, hp, vol, at) => { const b = AC.createBuffer(1, AC.sampleRate * dur, AC.sampleRate), d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3); const s = AC.createBufferSource(); s.buffer = b; const f = AC.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; const g = AC.createGain(); g.gain.value = vol; s.connect(f); f.connect(g); g.connect(AC.destination); s.start(t + (at || 0)); };
-    if (kind === 'card') noise(.05, 1800, .35);
-    else if (kind === 'chips') { tone(2600, .05, 'triangle', .07); tone(3100, .05, 'triangle', .06, .04); tone(2300, .06, 'triangle', .05, .08); }
+    // clay chips: a few short band-passed clicks, slightly apart, like chips landing on each other
+    const clack = (at, vol, f) => { const n = AC.createBuffer(1, AC.sampleRate * .03, AC.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 6); const src = AC.createBufferSource(); src.buffer = n; const bp = AC.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f || 3800; bp.Q.value = 2.5; const g = AC.createGain(); g.gain.value = vol; src.connect(bp); bp.connect(g); g.connect(AC.destination); src.start(t + at); };
+    const swish = (at, vol, dur) => { const n = AC.createBuffer(1, AC.sampleRate * dur, AC.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) { const x = i / d.length; d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * x) * (1 - x * .5); } const src = AC.createBufferSource(); src.buffer = n; const f = AC.createBiquadFilter(); f.type = 'bandpass'; f.frequency.setValueAtTime(1200, t + at); f.frequency.linearRampToValueAtTime(5200, t + at + dur); f.Q.value = .8; const g = AC.createGain(); g.gain.value = vol; src.connect(f); f.connect(g); g.connect(AC.destination); src.start(t + at); };
+    if (kind === 'card') swish(0, .5, .07);
+    else if (kind === 'deal') swish(0, .28, .06);
+    else if (kind === 'flip') { swish(0, .35, .05); clack(.04, .25, 2200); }
+    else if (kind === 'shuffle') { for (let i = 0; i < 18; i++) clack(i * .022 + Math.random() * .008, .12 + Math.random() * .08, 2600 + Math.random() * 1600); swish(.42, .3, .12); }
+    else if (kind === 'chips') { const k = 2 + Math.floor(Math.random() * 3); for (let i = 0; i < k; i++) clack(i * (.035 + Math.random() * .03), .5 - i * .08, 3300 + Math.random() * 1400); }
     else if (kind === 'check') { tone(160, .08, 'triangle', .3); tone(150, .08, 'triangle', .25, .1); }
-    else if (kind === 'fold') noise(.12, 600, .25);
+    else if (kind === 'fold') swish(0, .35, .16);
     else if (kind === 'win') { [392, 523, 659, 784, 1047].forEach((f, i) => tone(f, .3, 'sine', .14, i * .11)); }
-    else if (kind === 'pot') { [659, 784, 988].forEach((f, i) => tone(f, .22, 'triangle', .12, i * .08)); }
+    else if (kind === 'pot') { [659, 784, 988].forEach((f, i) => tone(f, .22, 'triangle', .12, i * .08)); for (let i = 0; i < 6; i++) clack(.25 + i * .05, .3, 3000 + Math.random() * 1500); }
+    else if (kind === 'bigwin') { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .35, 'triangle', .13, i * .09)); tone(1568, .6, 'sine', .1, .5); for (let i = 0; i < 26; i++) clack(.35 + i * .04 + Math.random() * .02, .25 + Math.random() * .2, 2800 + Math.random() * 2000); }
     else if (kind === 'lose') { [392, 330, 262].forEach((f, i) => tone(f, .3, 'sine', .12, i * .14)); }
     else if (kind === 'turn') tone(880, .12, 'sine', .07);
     else if (kind === 'tick') tone(1200, .04, 'square', .03);
@@ -1422,6 +1440,8 @@ function restore(file) {
 
 /* ---- i18n/he.js ---- */
 LANG.he = {
+youWonX:'זכית {0}', dealerNoQualShort:'הדילר לא עבר', youWinPot:'הקופה שלך!', potTaken:'הקופה נלקחה',
+cardBack:'גב הקלף',
 pnAvatar:'בחירת אווטר',
 pokerTitle:"פוקר", tagline:"חמש גרסאות פוקר — מול המחשב, בטלפון אחד או אונליין עם חברים. צ'יפים וירטואליים בלבד.",
 v_holdem:"טקסס הולדם", v_omaha:"אומהה", v_draw5:"5 קלפים", v_three:"3 קלפים", v_carib:"קריבי",
@@ -1493,6 +1513,8 @@ rules_carib:"<p>משחק נגד <b>הדילר</b> (הקופה), לא נגד שא
 
 /* ---- i18n/en.js ---- */
 LANG.en = {
+youWonX:'You won {0}', dealerNoQualShort:'Dealer missed', youWinPot:'Pot is yours!', potTaken:'Pot taken',
+cardBack:'Card back',
 pnAvatar:'Choose avatar',
 pokerTitle:"Poker", tagline:"Five kinds of poker — against the computer, on one phone or online with friends. Virtual chips only.",
 v_holdem:"Texas Hold'em", v_omaha:"Omaha", v_draw5:"5-Card Draw", v_three:"3-Card Poker", v_carib:"Caribbean Stud",
@@ -1564,6 +1586,8 @@ rules_carib:"<p>You play against <b>the dealer</b> (the house), not the other pl
 
 /* ---- i18n/ru.js ---- */
 LANG.ru = {
+youWonX:'Вы выиграли {0}', dealerNoQualShort:'Дилер не прошёл', youWinPot:'Банк ваш!', potTaken:'Банк забран',
+cardBack:'Рубашка карт',
 pnAvatar:'Выбрать аватар',
 pokerTitle:"Покер", tagline:"Пять видов покера — против компьютера, на одном телефоне или онлайн с друзьями. Только виртуальные фишки.",
 v_holdem:"Техасский холдем", v_omaha:"Омаха", v_draw5:"5-карточный дро", v_three:"3-карточный покер", v_carib:"Карибский стад",
@@ -1635,6 +1659,8 @@ rules_carib:"<p>Игра против <b>дилера</b> (заведения), 
 
 /* ---- i18n/es.js ---- */
 LANG.es = {
+youWonX:'Ganaste {0}', dealerNoQualShort:'El crupier no califica', youWinPot:'¡El bote es tuyo!', potTaken:'Bote ganado',
+cardBack:'Reverso de las cartas',
 pnAvatar:'Elegir avatar',
 pokerTitle:"Póker", tagline:"Cinco tipos de póker — contra la computadora, en un solo teléfono u online con amigos. Solo fichas virtuales.",
 v_holdem:"Texas Hold'em", v_omaha:"Omaha", v_draw5:"Póker de 5 cartas", v_three:"Póker de 3 cartas", v_carib:"Caribbean Stud",
@@ -1706,6 +1732,8 @@ rules_carib:"<p>Se juega contra <b>el crupier</b> (la casa), no contra los demá
 
 /* ---- i18n/ar.js ---- */
 LANG.ar = {
+youWonX:'ربحت {0}', dealerNoQualShort:'الموزّع لم يتأهل', youWinPot:'الوعاء لك!', potTaken:'أُخذ الوعاء',
+cardBack:'ظهر الورق',
 pnAvatar:'اختيار الصورة الرمزية',
 pokerTitle:"بوكر", tagline:"خمسة أنواع من البوكر — ضد الحاسوب، على هاتف واحد أو أونلاين مع الأصدقاء. رقائق افتراضية فقط.",
 v_holdem:"تكساس هولدم", v_omaha:"أوماها", v_draw5:"بوكر 5 أوراق", v_three:"بوكر 3 أوراق", v_carib:"الكاريبي",
@@ -1920,7 +1948,7 @@ function goNext() {
   if (G.M.level !== lvl) toast(T('blindsUp', iso(NF(G.M.sb) + '/' + NF(G.M.bb))), 3500);
   freshHand(); WATCH = !!(G.mode !== 'online' && G.M.out[0] && G.watching);
   if (G.mode === 'two') { const t = PK.toAct(G.M); if (t != null && !isBot(t)) { G.viewer = t; PASS_ON = humanSeats().filter(s => !G.M.out[s]).length > 1; } }
-  beep('card');
+  if (FAST) beep('card');
   afterChange();
 }
 function doRebuy() {
@@ -2043,25 +2071,56 @@ function pnFly(from, to, kind, delay) {
   el.className = 'pn-flight ' + (kind === 'card' ? 'pc bk' : ''); if (kind !== 'card') el.innerHTML = pnStack(100);
   Object.assign(el.style, { left: a.left + a.width / 2 + 'px', top: a.top + a.height / 2 + 'px' }); document.body.appendChild(el);
   const dx = b.left + b.width / 2 - a.left - a.width / 2, dy = b.top + b.height / 2 - a.top - a.height / 2;
+  if (kind === 'card') beep('deal');
   const anim = el.animate([{ transform: 'translate(-50%,-50%) scale(.6)', opacity: 0 }, { opacity: 1, offset: .15 }, { transform: 'translate(calc(-50% + ' + dx + 'px),calc(-50% + ' + dy + 'px)) scale(.8)', opacity: 0 }], { duration: 480, easing: 'ease-out' });
   anim.onfinish = () => el.remove(); setTimeout(() => el.remove(), 700);
 }
 /* animations answer what changed between the previous view and this one; the game itself never waits for them.
    A hand is identified by match id + hand number (v.no) — handNo grows when a hand ends, so it can't be used. */
+/* the winner's moment: the hand's name, big, over the table; a flash and a cascade for big pots */
+function pnWin(v) {
+  const r = v.res; if (!r || FAST || matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  const wrap = $('#twrap'); if (!wrap) return false;
+  let title = '', line = '', big = false;
+  if (r.type === 'carib') {
+    const me = v.seat, o = r.out && r.out[me]; if (me < 0 || !o || o === 'fold') return false;
+    if (o === 'win') { title = handName(r.hands[me].k) + '!'; line = T('youWonX', chips(r.net[me])); big = r.hands[me].mult >= 4; }
+    else if (o === 'nq') { title = T('dealerNoQualShort'); line = T('youWonX', chips(r.net[me])); }
+    else return false;
+  } else {
+    const main = (r.pots || []).find(p => !p.ret) || (r.pots || [])[0]; if (!main) return false;
+    const w = main.win[0], names = main.win.map(s => s === v.seat && G.mode !== 'two' ? T('you') : nameOf(v, s)).join(' + ');
+    const total = r.won.reduce((a, b) => a + b, 0);
+    title = r.type === 'show' && r.hands[w] ? handName(r.hands[w].k) + '!' : (main.win.includes(v.seat) && G.mode !== 'two' ? T('youWinPot') : T('potTaken'));
+    line = (main.win.length > 1 ? T('splitX', names, chips(total)) : T('winsX', names, chips(total)));
+    const cat = r.type === 'show' && r.hands[w] ? PK.cat(r.hands[w].sc) : 0;
+    big = (v.g === 'three' ? cat >= 3 : cat >= 4) || v.allinRun || total >= 25 * v.bb;
+  }
+  $$('.pn-banner,.pn-flash').forEach(x => x.remove());
+  const b = document.createElement('div'); b.className = 'pn-banner' + (big ? ' big' : ''); b.innerHTML = '<b>' + esc(title) + '</b><span>' + esc(line) + '</span>';
+  wrap.appendChild(b); setTimeout(() => b.remove(), 2500);
+  if (big) { const f = document.createElement('div'); f.className = 'pn-flash'; wrap.appendChild(f); setTimeout(() => f.remove(), 1100); setTimeout(() => beep('bigwin'), 200); buzz([30, 60, 30]); }
+  return big;
+}
 function pnDecorate(v) {
   document.documentElement.classList.toggle('pn-fast', FAST);
   $('#tMsg').classList.toggle('pn-result', v.phase === 'end');
   const P = PN_PREV, same = P && P.id === G.id && P.no === v.no && P.g === v.g;
   const seat = s => '#seats .st[data-seat="' + s + '"]', bt = s => '#seats .bt[data-bs="' + s + '"]', mid = '.mid';
-  if (!same && v.phase !== 'wait') {                                      // a new hand: one card flies to each seat in it
-    const from = v.dealer != null && $(seat(v.dealer)) ? seat(v.dealer) : mid;
-    v.st.forEach((st, s) => { if (st !== 'none') pnFly(from, seat(s), 'card', s * 70); });
+  if (!same && v.phase !== 'wait') {                                      // a new hand: dealt card by card, round by round, from the dealer's left
+    const from = v.dealer != null && $(seat(v.dealer)) ? seat(v.dealer) : mid, n = v.n;
+    const order = []; for (let k = 1; k <= n; k++) { const s = (v.dealer + k) % n; if (v.st[s] !== 'none') order.push(s); }
+    const rounds = Math.max(1, ...order.map(s => (v.cards[s] || []).length)), step = Math.min(110, 1600 / Math.max(1, rounds * order.length));
+    if (P) beep('shuffle');
+    for (let r = 0; r < rounds; r++) order.forEach((s, i) => pnFly(from, s === v.seat ? '#myCards' : seat(s), 'card', 250 + (r * order.length + i) * step));
   } else if (same) {
     v.bet.forEach((x, s) => { if (x > (P.bet[s] || 0)) pnFly(seat(s), $(bt(s)) ? bt(s) : mid, 'chips'); });   // a new bet: seat → its chips
     if (P.bet.some(x => x > 0) && v.bet.every(x => x === 0)) P.bet.forEach((x, s) => { if (x > 0) pnFly(seat(s), mid, 'chips'); });  // round over: chips to the pot
     if (v.phase === 'end' && P.phase !== 'end') {
-      (v.res ? v.res.won : []).forEach((w, s) => { if (w > 0) pnFly(mid, seat(s), 'chips', 150); });                     // the pot goes to its winners
+      const big = pnWin(v);
+      (v.res ? v.res.won : []).forEach((w, s) => { if (w > 0) for (let k = 0; k < (big ? 6 : 2); k++) pnFly(mid, seat(s), 'chips', 150 + k * 110); });   // the pot pours to its winners
       $$('#seats .cs.up .pc').forEach((el, i) => { el.classList.add('pn-showdown'); el.style.animationDelay = (i % 5) * 60 + 'ms'; });
+      if ($('#seats .cs.up .pc')) beep('flip');
     }
   }
   PN_PREV = { id: G.id, no: v.no, g: v.g, phase: v.phase, bet: v.bet.slice() };
@@ -2676,6 +2735,7 @@ function renderSettings() {
     '<label class="f">' + esc(T('dayNight')) + '</label>' + seg('mode', [['night', '🌙 ' + T('night')], ['day', '☀️ ' + T('day')]]) +
     '<label class="f">' + esc(T('tableColor')) + '</label>' + seg('board', [['felt', T('bFelt')], ['wood', T('bWood')], ['blue', T('bBlue')], ['contrast', T('bContrast')], ['theme', T('bTheme')]]) +
     '<div style="display:flex;gap:6px;direction:ltr;justify-content:center;margin:12px 0">' + [12, 24, 36, 48, 21].map(c => cardHTML(c, '', 'style="--w:44px"')).join('') + '</div>' +
+    '<label class="f">' + esc(T('cardBack')) + '</label><div class="pn-backs">' + [1, 2].map(n => '<button class="pn-back-pick" data-back="' + n + '" aria-pressed="' + ((ST.back || 1) === n) + '" aria-label="' + esc(T('cardBack')) + ' ' + n + '"><img src="back-' + n + '.webp" alt=""></button>').join('') + '</div>' +
     sw('four', T('fourColor'), T('fourColorSub')) + '</div>' +
     '<div class="card"><h3>' + esc(T('play')) + '</h3><label class="f">' + esc(T('cpuSpeed')) + '</label>' + seg('speed', [['normal', T('spNormal')], ['fast', T('spFast')]]) +
     sw('showEq', T('eqOn'), T('eqSub')) + sw('sound', T('sound')) + sw('vib', T('vibration')) + '</div>' +
@@ -2686,6 +2746,7 @@ function renderSettings() {
   avatars.innerHTML = '<h3>' + esc(T('pnAvatar')) + '</h3><div class="pn-avatar-grid">' + Array.from({length:12}, (_,i) => '<button class="pn-avatar-pick" data-pn-avatar="' + (i+1) + '" aria-label="' + esc(T('pnAvatar')) + ' ' + iso(i+1) + '" aria-pressed="' + (Number(ST.avatar) === i+1) + '"><img src="av-' + String(i+1).padStart(2,'0') + '.webp" alt=""></button>').join('') + '</div>';
   b.insertBefore(avatars, b.children[1]);
   avatars.querySelectorAll('[data-pn-avatar]').forEach(x => x.onclick = () => { ST.avatar = Number(x.dataset.pnAvatar); saveST(); renderSettings(); });
+  $$('#setBody [data-back]').forEach(x => x.onclick = () => { ST.back = +x.dataset.back; saveST(); applyLook(); renderSettings(); });
   $('#sName').onchange = e => { ST.name = e.target.value.trim().slice(0, 20); saveST(); };
   $('#sLang').onchange = e => { ST.lang = e.target.value; saveST(); applyLang(); renderSettings(); renderHome(); };
   $$('#setBody [data-theme-pick]').forEach(x => x.onclick = () => { ST.theme = x.dataset.themePick; saveST(); applyLook(); renderSettings(); });
