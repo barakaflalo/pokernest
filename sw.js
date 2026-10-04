@@ -21,7 +21,7 @@
 
 /* PokerNest service worker — network-first for pages, each shell file cached on its own,
    only the app root is ever stored as the page, other origins pass straight through. */
-const VERSION = 'pokernest-v1';
+const VERSION = 'pokernest-v2';
 const SHELL = ['./', 'manifest.json', 'icon-192.png', 'icon-512.png', 'privacy_policy.html'];
 
 self.addEventListener('install', e => {

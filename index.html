@@ -222,7 +222,9 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .pot span{padding:2px 10px;border-radius:20px;background:rgba(0,0,0,.35);white-space:nowrap}
 .pot span b{font-weight:700}
 .tmsg{font-size:14px;text-align:center;min-height:20px;max-width:100%;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,.5)}
-.dealer-row{display:flex;direction:ltr;gap:3px;justify-content:center}
+.dealer-row{display:flex;flex-direction:column;align-items:center;gap:3px}
+.dealer-row .dlab{font-size:13px;opacity:.9}
+.dealer-row .dcards{display:flex;direction:ltr;gap:3px}
 .dealer-row .pc{--w:30px}
 /* seats */
 .st{position:absolute;transform:translate(-50%,-50%);width:92px;z-index:3;text-align:center;font-size:12px;line-height:1.2}
@@ -248,6 +250,8 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .st .dot.off{background:#888}.st .dot.sub{background:#e0b040}
 .bt{position:absolute;transform:translate(-50%,-50%);z-index:2;display:flex;align-items:center;gap:4px;padding:2px 8px 2px 3px;border-radius:20px;background:rgba(0,0,0,.45);color:#fff;font-size:13px;font-weight:500;white-space:nowrap;direction:ltr}
 .chip{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fff 0 28%,var(--acc) 30% 62%,#fff 64% 72%,var(--acc) 74%);box-shadow:0 1px 2px rgba(0,0,0,.5);flex:none}
+.st .dbadge{position:absolute;top:-10px;width:23px;height:23px;border-radius:50%;background:#fbf7ea;color:#111;font-weight:700;font-size:12px;line-height:1;display:grid;place-items:center;box-shadow:0 2px 4px rgba(0,0,0,.5);border:2px solid #c9c2ad;z-index:2}
+.st .dbadge.l{left:-10px}.st .dbadge.r{right:-10px}
 .dbtn{position:absolute;transform:translate(-50%,-50%);z-index:4;width:24px;height:24px;border-radius:50%;background:#fbf7ea;color:#111;font-weight:700;font-size:13px;display:grid;place-items:center;box-shadow:0 2px 4px rgba(0,0,0,.5);border:2px solid #c9c2ad}
 /* my hand */
 .mine{display:flex;align-items:center;gap:10px;padding:6px 12px 4px;min-height:96px}
@@ -274,7 +278,7 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .rpanel{padding:8px 12px 10px;border-top:1px solid var(--line);background:var(--panel)}
 .rpanel .pre{display:flex;gap:6px;margin-bottom:8px}
 .rpanel .pre button{flex:1;min-height:42px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:13px}
-.rpanel .amt{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.rpanel .amt{display:flex;align-items:center;gap:8px;margin-bottom:8px;direction:ltr}
 .rpanel .amt b{font-family:var(--disp);font-weight:400;font-size:26px;min-width:90px;text-align:center;color:var(--acc)}
 .rpanel input[type=range]{flex:1;height:36px;accent-color:var(--acc)}
 .rpanel .stepb{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel2);font-size:22px;cursor:pointer}
@@ -300,7 +304,7 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 .rp .hrow{display:flex;direction:ltr;flex-wrap:wrap;gap:2px;justify-content:center;align-items:center}
 .paytbl td:last-child{text-align:end;font-weight:500}
 .hrank{display:grid;gap:4px}
-.hrank div{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:4px 8px;border-radius:10px;background:var(--panel2)}
+.hrank>div{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:4px 8px;border-radius:10px;background:var(--panel2)}
 .hrank .ms{display:flex;direction:ltr;gap:2px}.hrank .ms .pc{--w:24px}
 @media (orientation:landscape) and (max-height:540px){
   #game.on{display:grid;grid-template-columns:1fr minmax(250px,34%);grid-template-rows:auto 1fr auto auto auto auto}
@@ -1232,7 +1236,7 @@ if (typeof module !== 'undefined') module.exports = PKAI;
 /* =====================================================================
    PokerNest — app core (storage · settings · screens · cards · sound · backup)
    ===================================================================== */
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const P = 'poker_';
@@ -1402,7 +1406,7 @@ placeN:"מקום {0}", outLbl:"בחוץ", watching:"את/ה צופה — תיכ�
 h0:"קלף גבוה", h1:"זוג", h2:"שני זוגות", h3:"שלישייה", h4:"רצף", h5:"צבע", h6:"פול האוס", h7:"רביעייה", h8:"סטרייט פלאש", h9:"רויאל פלאש",
 t0:"קלף גבוה", t1:"זוג", t2:"צבע", t3:"רצף", t4:"שלישייה", t5:"רצף בצבע", threeNote:"ב-3 קלפים רצף נדיר יותר מצבע, ולכן הוא חזק ממנו. A-2-3 הוא הרצף הנמוך, Q-K-A הגבוה.",
 eqLine:"סיכוי לנצח עכשיו: {0}%", eqOn:"להראות סיכוי לנצח", eqOff:"להסתיר סיכוי לנצח", eqSub:"מחושב מהקלפים שלך בלבד, מול הידיים שעוד במשחק",
-hint:"רמז", hEq:"הסיכוי שלך לנצח: {0}% (מול {1})", hPo:"· כדי להשוות צריך לפחות {0}%", hDo:"המלצה: {0}", hDraw:"להחליף את {0}", hStand:"לעמוד — היד שלך מוכנה", hintNote:"הרמז רואה רק מה שאת/ה רואה.",
+hint:"רמז", hEq:"הסיכוי שלך לנצח: {0}% · יריבים ביד: {1}", hPo:"· כדי להשוות צריך לפחות {0}%", hDo:"המלצה: {0}", hDraw:"להחליף את {0}", hStand:"לעמוד — היד שלך מוכנה", hintNote:"הרמז רואה רק מה שאת/ה רואה.",
 nextHand:"יד הבאה", nextSoon:"היד הבאה מתחילה", rebuyX:"קנייה מחדש · {0}", rebuyAsked:"ביקשת קנייה מחדש — נכנס ביד הבאה", xRebought:"{0} קנה מחדש", seeResults:"לתוצאות", whatNow:"מה עכשיו?",
 outSub:"אפשר לצפות בשאר הטורניר במהירות, או להתחיל מחדש.", watchFast:"לצפות עד הסוף", home:"לבית", rematch:"משחק חוזר",
 youWon:"ניצחת! 🏆", xWonMatch:"{0} ניצח", matchOver:"המשחק נגמר", sessionSum:"סיכום המשחק", rebuysN:"{0} קניות", hintsUsed:"רמזים: {0}",
@@ -1439,9 +1443,9 @@ micDenied:"אין הרשאת מיקרופון — אפשר אותה בהגדרו
 alreadyInRoom:"את/ה כבר בחדר אחר — צא ממנו קודם", enterNameJoin:"כתוב את השם שלך ולחץ הצטרף", fileWarn:"נפתח כקובץ — התקן מהכתובת באינטרנט כדי שהשמירה והאופליין יעבדו",
 phNice:"יד יפה!", phHurry:"תורך… 😅", phLucky:"איזה מזל!", phBluff:"בלוף! 😏", phAgain:"עוד יד?", phGG:"משחק יפה 🤝",
 rulesCommon:"<h3>הבסיס — לכל הגרסאות חוץ מקריבי</h3><p>משחקים עם צ'יפים וירטואליים. בכל יד הכפתור <b>D</b> (הדילר) עובר שחקן אחד הלאה. שני השחקנים משמאלו שמים <b>בליינד קטן</b> ו<b>בליינד גדול</b> לפני החלוקה. בשניים — הדילר הוא הבליינד הקטן.</p><p>בכל סבב הימורים, בתורו, כל שחקן יכול: <b>לקפל</b> (לוותר על היד), <b>צ'ק</b> (להעביר, אם אין הימור לפניו), <b>להשוות</b> להימור הגבוה, או <b>להעלות</b>. ההעלאה המינימלית היא לפחות בגודל ההעלאה הקודמת.</p><p><b>אול-אין</b>: מי שאין לו מספיק צ'יפים יכול לשים את כולם. הוא יכול לזכות רק במה ששם מכל שחקן, והשאר הולך ל<b>קופה צדדית</b> בין האחרים. אול-אין קטן מהעלאה מלאה לא פותח מחדש את ההימורים למי שכבר פעל.</p><p>אם כולם קיפלו — האחרון שנשאר לוקח את הקופה בלי להראות. אחרת, בסוף יש <b>שואודאון</b>: היד הטובה ביותר מנצחת; ביד שווה הקופה מתחלקת.</p><p><b>טורניר</b>: הבליינדים עולים כל כמה ידיים, ומי שנגמרים לו הצ'יפים יוצא — עד שנשאר אחד. <b>משחק חופשי</b>: בליינדים קבועים, אפשר לקנות מחדש, ובסוף רואים רווח והפסד.</p>",
-rules_holdem:"<p>כל שחקן מקבל <b>2 קלפים</b> סגורים. על השולחן נפתחים <b>5 קלפים משותפים</b>: שלושה (פלופ), אחד (טרן) ואחד (ריבר), עם סבב הימורים לפני כל שלב — ארבעה סבבים. היד שלך היא 5 הקלפים הטובים ביותר מתוך 7. No-Limit: אפשר להמר כל סכום עד כל הצ'יפים.</p>",
-rules_omaha:"<p>כמו הולדם, אבל כל שחקן מקבל <b>4 קלפים</b>, ו<b>חייבים להשתמש בדיוק ב-2 מהם ובדיוק ב-3 מהשולחן</b>. לכן ארבעה ♥ על השולחן הם לא צבע אם אין לך שני ♥ ביד. ברירת המחדל היא <b>Pot-Limit</b>: ההעלאה הגדולה ביותר היא בגודל הקופה (אחרי ההשוואה). אפשר לבחור No-Limit בהגדרות השולחן.</p>",
-rules_draw5:"<p>כל שחקן מקבל <b>5 קלפים</b> סגורים, ואין קלפים על השולחן. סבב הימורים, ואז כל שחקן בתורו <b>מחליף עד 3 קלפים</b> (או \"עומד\" בלי להחליף). כולם רואים כמה כל אחד החליף — וזה מידע! אחר כך סבב הימורים שני ושואודאון. No-Limit.</p>",
+rules_holdem:"<p>כל שחקן מקבל <b>2 קלפים</b> סגורים. על השולחן נפתחים <b>5 קלפים משותפים</b>: שלושה (פלופ), אחד (טרן) ואחד (ריבר), עם סבב הימורים לפני כל שלב — ארבעה סבבים. היד שלך היא 5 הקלפים הטובים ביותר מתוך 7. ההימור <b>בלי הגבלה</b> (<bdi>No-Limit</bdi>): אפשר להמר כל סכום, עד כל הצ'יפים.</p>",
+rules_omaha:"<p>כמו הולדם, אבל כל שחקן מקבל <b>4 קלפים</b>, ו<b>חייבים להשתמש בדיוק ב-2 מהם ובדיוק ב-3 מהשולחן</b>. לכן ארבעה ♥ על השולחן הם לא צבע אם אין לך שני ♥ ביד. ברירת המחדל היא <b>הגבלת קופה</b> (<bdi>Pot-Limit</bdi>): ההעלאה הגדולה ביותר היא בגודל הקופה (אחרי ההשוואה). אפשר לבחור בלי הגבלה (<bdi>No-Limit</bdi>) בהגדרות השולחן.</p>",
+rules_draw5:"<p>כל שחקן מקבל <b>5 קלפים</b> סגורים, ואין קלפים על השולחן. סבב הימורים, ואז כל שחקן בתורו <b>מחליף עד 3 קלפים</b> (או \"עומד\" בלי להחליף). כולם רואים כמה כל אחד החליף — וזה מידע! אחר כך סבב הימורים שני ושואודאון. ההימור בלי הגבלה (<bdi>No-Limit</bdi>).</p>",
 rules_three:"<p>כל שחקן מקבל <b>3 קלפים</b>, יש בליינדים וסבב הימורים <b>אחד</b>, ואז שואודאון. מהיר ואגרסיבי. שימו לב לדירוג המיוחד: עם 3 קלפים קשה יותר לקבל רצף מאשר צבע, ולכן <b>רצף מנצח צבע</b>, ושלישייה מנצחת רצף. A-2-3 הוא הרצף הנמוך.</p>",
 rules_carib:"<p>משחק נגד <b>הדילר</b> (הקופה), לא נגד שאר השחקנים. כל שחקן שם <b>אנטה</b> ומקבל 5 קלפים; לדילר 5 קלפים ואחד מהם פתוח. מסתכלים על היד ומחליטים: <b>לקפל</b> (מפסידים את האנטה) או <b>לשחק</b> — הימור של פי 2 מהאנטה.</p><p>הדילר צריך לפחות <b>A-K</b> כדי \"לעבור את הסף\". לא עבר — האנטה משולמת 1:1 וההימור חוזר. עבר — משווים: אם היד שלך טובה יותר, האנטה משולמת 1:1 וההימור לפי הטבלה; אם של הדילר — מפסידים את שניהם; שוויון — הכל חוזר.</p>{pay}<p>כדאי לשחק עם זוג ומעלה, ולקפל עם פחות מ-A-K. בטורניר: 30 ידיים והאנטה עולה; מי שיש לו הכי הרבה צ'יפים בסוף מנצח.</p>"
 };
@@ -1472,7 +1476,7 @@ placeN:"#{0}", outLbl:"Out", watching:"You're watching — you'll join the next 
 h0:"High card", h1:"Pair", h2:"Two pair", h3:"Three of a kind", h4:"Straight", h5:"Flush", h6:"Full house", h7:"Four of a kind", h8:"Straight flush", h9:"Royal flush",
 t0:"High card", t1:"Pair", t2:"Flush", t3:"Straight", t4:"Three of a kind", t5:"Straight flush", threeNote:"With 3 cards a straight is rarer than a flush, so it ranks higher. A-2-3 is the lowest straight, Q-K-A the highest.",
 eqLine:"Chance to win now: {0}%", eqOn:"Show my chance to win", eqOff:"Hide my chance to win", eqSub:"Worked out from your cards only, against the hands still in play",
-hint:"Hint", hEq:"Your chance to win: {0}% (against {1})", hPo:"· calling needs at least {0}%", hDo:"Suggestion: {0}", hDraw:"Swap {0}", hStand:"Stand pat — your hand is made", hintNote:"The hint sees only what you see.",
+hint:"Hint", hEq:"Your chance to win: {0}% · opponents in the hand: {1}", hPo:"· calling needs at least {0}%", hDo:"Suggestion: {0}", hDraw:"Swap {0}", hStand:"Stand pat — your hand is made", hintNote:"The hint sees only what you see.",
 nextHand:"Next hand", nextSoon:"Next hand starts", rebuyX:"Buy in again · {0}", rebuyAsked:"Buy-in requested — you're in next hand", xRebought:"{0} bought in again", seeResults:"See results", whatNow:"What now?",
 outSub:"Watch the rest of the tournament quickly, or start over.", watchFast:"Watch to the end", home:"Home", rematch:"Rematch",
 youWon:"You won! 🏆", xWonMatch:"{0} won", matchOver:"Game over", sessionSum:"Session summary", rebuysN:"{0} buy-ins", hintsUsed:"Hints: {0}",
@@ -1542,7 +1546,7 @@ placeN:"#{0}", outLbl:"Выбыл", watching:"Вы наблюдаете — во
 h0:"Старшая карта", h1:"Пара", h2:"Две пары", h3:"Сет", h4:"Стрит", h5:"Флеш", h6:"Фулл-хаус", h7:"Каре", h8:"Стрит-флеш", h9:"Роял-флеш",
 t0:"Старшая карта", t1:"Пара", t2:"Флеш", t3:"Стрит", t4:"Сет", t5:"Стрит-флеш", threeNote:"С 3 картами стрит реже флеша, поэтому он старше. A-2-3 — младший стрит, Q-K-A — старший.",
 eqLine:"Шанс выиграть сейчас: {0}%", eqOn:"Показывать шанс выиграть", eqOff:"Скрыть шанс выиграть", eqSub:"Считается только по вашим картам против рук в игре",
-hint:"Подсказка", hEq:"Ваш шанс выиграть: {0}% (против {1})", hPo:"· для колла нужно хотя бы {0}%", hDo:"Совет: {0}", hDraw:"Обменять {0}", hStand:"Без обмена — рука готова", hintNote:"Подсказка видит только то, что видите вы.",
+hint:"Подсказка", hEq:"Ваш шанс выиграть: {0}% · соперников в раздаче: {1}", hPo:"· для колла нужно хотя бы {0}%", hDo:"Совет: {0}", hDraw:"Обменять {0}", hStand:"Без обмена — рука готова", hintNote:"Подсказка видит только то, что видите вы.",
 nextHand:"Следующая раздача", nextSoon:"Следующая раздача через", rebuyX:"Купить снова · {0}", rebuyAsked:"Запрошена покупка — вы в следующей раздаче", xRebought:"{0} купил фишки снова", seeResults:"Итоги", whatNow:"Что дальше?",
 outSub:"Можно быстро досмотреть турнир или начать заново.", watchFast:"Досмотреть", home:"Домой", rematch:"Реванш",
 youWon:"Вы выиграли! 🏆", xWonMatch:"{0} выиграл", matchOver:"Игра окончена", sessionSum:"Итоги игры", rebuysN:"{0} покупок", hintsUsed:"Подсказок: {0}",
@@ -1612,7 +1616,7 @@ placeN:"#{0}", outLbl:"Fuera", watching:"Estás mirando — entrarás en la pró
 h0:"Carta alta", h1:"Pareja", h2:"Doble pareja", h3:"Trío", h4:"Escalera", h5:"Color", h6:"Full", h7:"Póker", h8:"Escalera de color", h9:"Escalera real",
 t0:"Carta alta", t1:"Pareja", t2:"Color", t3:"Escalera", t4:"Trío", t5:"Escalera de color", threeNote:"Con 3 cartas la escalera es más rara que el color, por eso vale más. A-2-3 es la escalera más baja y Q-K-A la más alta.",
 eqLine:"Probabilidad de ganar ahora: {0}%", eqOn:"Mostrar mi probabilidad de ganar", eqOff:"Ocultar mi probabilidad", eqSub:"Calculada solo con tus cartas, contra las manos que siguen en juego",
-hint:"Pista", hEq:"Tu probabilidad de ganar: {0}% (contra {1})", hPo:"· para igualar necesitas al menos {0}%", hDo:"Sugerencia: {0}", hDraw:"Cambia {0}", hStand:"Plántate — tu mano está hecha", hintNote:"La pista solo ve lo que ves tú.",
+hint:"Pista", hEq:"Tu probabilidad de ganar: {0}% · rivales en la mano: {1}", hPo:"· para igualar necesitas al menos {0}%", hDo:"Sugerencia: {0}", hDraw:"Cambia {0}", hStand:"Plántate — tu mano está hecha", hintNote:"La pista solo ve lo que ves tú.",
 nextHand:"Siguiente mano", nextSoon:"La siguiente mano empieza en", rebuyX:"Recomprar · {0}", rebuyAsked:"Recompra pedida — entras en la siguiente mano", xRebought:"{0} recompró", seeResults:"Ver resultados", whatNow:"¿Y ahora?",
 outSub:"Puedes ver el resto del torneo rápido o empezar de nuevo.", watchFast:"Ver hasta el final", home:"Inicio", rematch:"Revancha",
 youWon:"¡Ganaste! 🏆", xWonMatch:"{0} ganó", matchOver:"Fin de la partida", sessionSum:"Resumen de la partida", rebuysN:"{0} recompras", hintsUsed:"Pistas: {0}",
@@ -1682,7 +1686,7 @@ placeN:"المركز {0}", outLbl:"خارج", watching:"أنت تشاهد — س
 h0:"ورقة عالية", h1:"زوج", h2:"زوجان", h3:"ثلاثية", h4:"متتالية", h5:"لون", h6:"فل هاوس", h7:"رباعية", h8:"متتالية ملونة", h9:"رويال فلاش",
 t0:"ورقة عالية", t1:"زوج", t2:"لون", t3:"متتالية", t4:"ثلاثية", t5:"متتالية ملونة", threeNote:"مع 3 أوراق المتتالية أندر من اللون، لذلك هي أقوى. A-2-3 أدنى متتالية وQ-K-A أعلاها.",
 eqLine:"فرصة الفوز الآن: {0}%", eqOn:"إظهار فرصة الفوز", eqOff:"إخفاء فرصة الفوز", eqSub:"تُحسب من أوراقك فقط مقابل الأيدي التي ما زالت في اللعب",
-hint:"تلميح", hEq:"فرصتك في الفوز: {0}% (مقابل {1})", hPo:"· للمجاراة تحتاج {0}% على الأقل", hDo:"الاقتراح: {0}", hDraw:"بدّل {0}", hStand:"لا تبدّل — يدك جاهزة", hintNote:"التلميح يرى فقط ما تراه أنت.",
+hint:"تلميح", hEq:"فرصتك في الفوز: {0}% · خصوم في اليد: {1}", hPo:"· للمجاراة تحتاج {0}% على الأقل", hDo:"الاقتراح: {0}", hDraw:"بدّل {0}", hStand:"لا تبدّل — يدك جاهزة", hintNote:"التلميح يرى فقط ما تراه أنت.",
 nextHand:"اليد التالية", nextSoon:"اليد التالية تبدأ بعد", rebuyX:"شراء من جديد · {0}", rebuyAsked:"طلبت الشراء — تدخل في اليد التالية", xRebought:"{0} اشترى من جديد", seeResults:"النتائج", whatNow:"ماذا الآن؟",
 outSub:"يمكنك مشاهدة بقية البطولة بسرعة أو البدء من جديد.", watchFast:"شاهد حتى النهاية", home:"الرئيسية", rematch:"مباراة جديدة",
 youWon:"فزت! 🏆", xWonMatch:"{0} فاز", matchOver:"انتهت اللعبة", sessionSum:"ملخص اللعبة", rebuysN:"{0} عمليات شراء", hintsUsed:"التلميحات: {0}",
@@ -1966,9 +1970,9 @@ const SLOT = [{ x: 50, y: 91, cx: 50, cy: 73, dx: 67, dy: 84 }, { x: 11, y: 67, 
   { x: 50, y: 7, cx: 50, cy: 21, dx: 72, dy: 12 }, { x: 89, y: 24, cx: 70, cy: 27, dx: 73, dy: 13 }, { x: 89, y: 67, cx: 70, cy: 62, dx: 76, dy: 55 }];
 const SLOTS_N = { 1: [0], 2: [0, 3], 3: [0, 2, 4], 4: [0, 2, 3, 4], 5: [0, 1, 2, 4, 5], 6: [0, 1, 2, 3, 4, 5] };
 function seatPos(k, n) {
-  const sl = SLOT[(SLOTS_N[n] || SLOTS_N[6])[k]], w = $('#twrap').clientWidth || 360, h = $('#twrap').clientHeight || 400;
+  const slot = (SLOTS_N[n] || SLOTS_N[6])[k], sl = SLOT[slot], w = $('#twrap').clientWidth || 360, h = $('#twrap').clientHeight || 400;
   const half = (w < 380 ? 80 : 92) / 2 + 2, clampX = x => Math.max(half, Math.min(w - half, x / 100 * w)) / w * 100, clampY = y => Math.max(36, Math.min(h - 30, y / 100 * h)) / h * 100;
-  return { x: clampX(sl.x), y: clampY(sl.y), cx: sl.cx, cy: sl.cy, dx: sl.dx, dy: sl.dy };
+  return { slot, x: clampX(sl.x), y: clampY(sl.y), cx: sl.cx, cy: sl.cy };
 }
 function renderGame() {
   if (SCREEN !== 'game' || !G) return;
@@ -1990,7 +1994,7 @@ function renderGame() {
   if (brd.length !== LAST_BOARD) { if (brd.length > LAST_BOARD && LAST_BOARD !== 0 || brd.length === 3) beep('card'); LAST_BOARD = brd.length; }
   // dealer row (Caribbean)
   const dr = $('#dRow');
-  if (v.g === 'carib' && v.dealerCards) { dr.classList.remove('hide'); dr.innerHTML = '<span style="align-self:center;margin-inline-end:6px;font-size:13px">' + esc(T('dealer')) + '</span>' + v.dealerCards.map(c => cardHTML(c)).join(''); } else dr.classList.add('hide');
+  if (v.g === 'carib' && v.dealerCards) { dr.classList.remove('hide'); dr.innerHTML = '<div class="dlab">' + esc(T('dealer')) + '</div><div class="dcards">' + v.dealerCards.map(c => cardHTML(c)).join('') + '</div>'; } else dr.classList.add('hide');
   // pot
   const potTxt = v.pot ? '<span>' + esc(T('pot')) + ' <b>' + chips(v.pot) + '</b></span>' : '';
   $('#pot').innerHTML = v.g === 'carib' ? '' : potTxt;
@@ -2016,9 +2020,9 @@ function renderGame() {
     const nm = mine ? (G.mode === 'two' ? nameOf(v, s) : T('you')) : nameOf(v, s);
     const tm = v.turn === s && !end && G.tEnd ? '<div class="tm" data-tm><i></i></div>' : '';
     h += '<div class="' + cls + '" data-seat="' + s + '" style="left:' + p.x + '%;top:' + p.y + '%">' + cards + '<div class="bx">' + (lab ? '<span class="ac' + (hot ? ' hot' : '') + '">' + esc(lab) + '</span>' : '') +
-      '<span class="nm">' + dot + esc(nm) + '</span><span class="sk">' + (v.out[s] ? '—' : chips(v.stacks[s])) + '</span>' + tm + '</div></div>';
-    if (v.bet[s] > 0 && !end) h += '<div class="bt" style="left:' + p.cx + '%;top:' + p.cy + '%"><span class="chip"></span>' + esc(NF(v.bet[s])) + '</div>';
-    if (s === v.dealer && v.phase !== 'wait') h += '<div class="dbtn" style="left:' + p.dx + '%;top:' + p.dy + '%">D</div>';
+      (s === v.dealer && v.g !== 'carib' && v.phase !== 'wait' ? '<span class="dbadge ' + (p.x > 50 ? 'l' : 'r') + '" aria-label="dealer">D</span>' : '') + '<span class="nm">' + dot + esc(nm) + '</span><span class="sk">' + (v.out[s] ? '—' : chips(v.stacks[s])) + '</span>' + tm + '</div></div>';
+    const th2 = $('#twrap').clientHeight || 400, cy = p.slot === 3 ? p.y + 62 / th2 * 100 : p.slot === 0 ? p.y - 60 / th2 * 100 : p.cy;
+    if (v.bet[s] > 0 && !end) h += '<div class="bt" style="left:' + p.cx + '%;top:' + cy + '%"><span class="chip"></span>' + esc(NF(v.bet[s])) + '</div>';
   }
   $('#seats').innerHTML = h;
   renderMine(v); renderBar(v); renderNet(); tickTimers();
@@ -2037,7 +2041,8 @@ function renderMine(v) {
   const cs = me >= 0 ? v.cards[me] : null;
   if (!cs || !cs.length) { box.innerHTML = ''; inf.innerHTML = me < 0 ? '<span class="hn">' + esc(T('watching')) + '</span>' : (v.out[me] ? '<span class="hn">' + esc(T('youOut', v.place[me] || '')) + '</span>' : (v.st[me] === 'fold' ? '<span class="hn">' + esc(T('youFolded')) + '</span>' : '')); return; }
   const hide = G.mode === 'two' && PASS_ON, pick = v.phase === 'draw' && v.turn === me && !hide;
-  const mw = Math.max(40, Math.min(cs.length <= 2 ? 66 : 58, (innerWidth - (innerWidth > 560 ? 300 : 150)) / (cs.length + .5)));
+  const avail = ($('#mine').clientWidth || innerWidth) - 100;
+  const mw = Math.max(36, Math.min(cs.length <= 2 ? 66 : 58, avail / (cs.length + .4)));
   box.style.setProperty('--mw', mw + 'px');
   box.classList.toggle('pick', pick);
   const shown = cs.slice().sort((a, b) => PK.rank(b) - PK.rank(a) || PK.suit(a) - PK.suit(b));   // display order only
@@ -2092,7 +2097,7 @@ function presets(o) {
 function renderRaise(v) {
   const o = v.opts, rp = $('#rPanel'), step = Math.max(1, v.sb);
   RAISE = Math.max(o.minTo, Math.min(o.maxTo, RAISE));
-  const lab = k => k === 'min' ? T('pMin') : k === 'pot' ? T('pPot') : k === 'allin' ? T('allin') : k === 'max' ? T('pMax') : iso(k + ' ' + T('pPot'));
+  const lab = k => k === 'min' ? T('pMin') : k === 'pot' ? T('pPot') : k === 'allin' ? T('allin') : k === 'max' ? T('pMax') : k + ' ' + T('pPot');
   rp.innerHTML = '<div class="pre">' + presets(o).map(([k, to]) => '<button data-to="' + to + '">' + esc(lab(k)) + '</button>').join('') + '</div>' +
     '<div class="amt"><button class="stepb" data-st="-1" aria-label="-">−</button><input type="range" id="rRange" min="' + o.minTo + '" max="' + o.maxTo + '" step="' + step + '" value="' + RAISE + '" dir="ltr"><button class="stepb" data-st="1" aria-label="+">+</button><b>' + chips(RAISE) + '</b></div>';
 }
@@ -2578,7 +2583,7 @@ function renderSettings() {
     '<div class="card"><h3>' + esc(T('look')) + '</h3><label class="f">' + esc(T('theme')) + '</label><div class="swatches">' + THEMES.map(t => '<button class="swatch ' + (ST.theme === t ? 'on' : '') + '" data-theme-pick="' + t + '" style="background:' + THEME_COL[t] + '" aria-label="' + t + '"></button>').join('') + '</div>' +
     '<label class="f">' + esc(T('dayNight')) + '</label>' + seg('mode', [['night', '🌙 ' + T('night')], ['day', '☀️ ' + T('day')]]) +
     '<label class="f">' + esc(T('tableColor')) + '</label>' + seg('board', [['felt', T('bFelt')], ['wood', T('bWood')], ['blue', T('bBlue')], ['contrast', T('bContrast')], ['theme', T('bTheme')]]) +
-    '<div style="display:flex;gap:6px;direction:ltr;justify-content:center;margin:12px 0">' + [12, 24, 36, 48, 9].map(c => cardHTML(c, '', 'style="--w:44px"')).join('') + '</div>' +
+    '<div style="display:flex;gap:6px;direction:ltr;justify-content:center;margin:12px 0">' + [12, 24, 36, 48, 21].map(c => cardHTML(c, '', 'style="--w:44px"')).join('') + '</div>' +
     sw('four', T('fourColor'), T('fourColorSub')) + '</div>' +
     '<div class="card"><h3>' + esc(T('play')) + '</h3><label class="f">' + esc(T('cpuSpeed')) + '</label>' + seg('speed', [['normal', T('spNormal')], ['fast', T('spFast')]]) +
     sw('showEq', T('eqOn'), T('eqSub')) + sw('sound', T('sound')) + sw('vib', T('vibration')) + '</div>' +
@@ -2677,7 +2682,7 @@ function renderRules(first) {
 /* ---------- about ---------- */
 function renderAbout() {
   $('#aboutBody').innerHTML = '<div style="text-align:center"><img src="icon-192.png" alt="" width="84" height="84" style="border-radius:20px"><h2 style="font-family:var(--disp);font-weight:400;margin:8px 0 0">PokerNest</h2><div class="muted">' + esc(T('tagline')) + '</div></div>' +
-    '<div class="card" style="margin-top:14px"><table class="tbl" style="text-align:start"><tr><td>' + esc(T('version')) + '</td><td>' + APP_VERSION + '</td></tr><tr><td>' + esc(T('developer')) + '</td><td>Barak Aflalo</td></tr><tr><td>' + esc(T('platform')) + '</td><td>PWA · HTML5</td></tr><tr><td>' + esc(T('storage')) + '</td><td>' + esc(T('storageVal')) + '</td></tr><tr><td>' + esc(T('license')) + '</td><td>© AppNest 2026</td></tr></table></div>' +
+    '<div class="card" style="margin-top:14px"><table class="tbl" style="text-align:start"><tr><td>' + esc(T('version')) + '</td><td>' + APP_VERSION + '</td></tr><tr><td>' + esc(T('developer')) + '</td><td>Barak Aflalo</td></tr><tr><td>' + esc(T('platform')) + '</td><td>PWA · HTML5</td></tr><tr><td>' + esc(T('storage')) + '</td><td>' + esc(T('storageVal')) + '</td></tr><tr><td>' + esc(T('license')) + '</td><td>' + iso('© AppNest 2026') + '</td></tr></table></div>' +
     '<div class="row"><a class="btn" href="https://appnest-store.pages.dev" target="_blank" rel="noopener">🏪 ' + esc(T('store')) + '</a><button class="btn" id="aShare">📤 ' + esc(T('shareApp')) + '</button></div>' +
     '<div class="row" style="margin-top:10px"><a class="btn" href="mailto:appnest55@gmail.com?subject=PokerNest%20' + APP_VERSION + '">✉️ ' + esc(T('feedback')) + '</a><button class="btn" id="aTour">🧭 ' + esc(T('tourAgain')) + '</button></div>' +
     '<div class="row" style="margin-top:10px"><a class="btn" href="privacy_policy.html" target="_blank">🔒 ' + esc(T('privacy')) + '</a><button class="btn" id="aRules">📖 ' + esc(T('rules')) + '</button></div>' +
