@@ -375,6 +375,29 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 /* court art may reach the corners — a cream halo keeps the index readable */
 .pc .ix{text-shadow:0 0 2px var(--cardFace),0 0 3px var(--cardFace),0 0 4px var(--cardFace)}
 
+/* analysis + training */
+.minor{grid-template-columns:repeat(5,1fr)}.minor button{font-size:12px}
+.pn-an-score{font-family:var(--disp);font-size:22px;margin:4px 0;color:var(--acc)}
+.pn-an-hand{margin:10px 0;padding:8px;border-radius:14px;background:var(--panel2)}
+.pn-an-h{font-weight:700;margin-bottom:6px}
+.pn-an-row{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}
+.pn-an-row:first-of-type{border-top:0}
+.pn-an-mark{font-size:22px;font-weight:700;width:22px;text-align:center;flex:none;line-height:1.2}
+.pn-an-txt{flex:1;min-width:0}.pn-an-txt b{display:block;font-size:14px}.pn-an-txt span{display:block;font-size:14px;color:var(--muted)}
+.pn-an-cards{display:flex;direction:ltr;gap:2px;align-items:center;margin-bottom:4px;flex-wrap:wrap}.pn-an-cards>.pc{--w:26px}.pn-an-cards>i{width:8px}
+.pn-tr-top{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+.pn-tr-q{font-size:18px;font-weight:500;margin:10px 0}
+.pn-tr-lab{font-size:13px;color:var(--muted);margin-top:8px}
+.pn-tr-row{display:flex;direction:ltr;gap:5px;justify-content:center;margin:4px 0}.pn-tr-row>.pc{--w:min(15vw,54px)}
+.pn-tr-hands{display:grid;gap:8px;margin-top:10px}
+.pn-tr-hand{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel2);cursor:pointer;color:var(--ink);font:inherit}
+.pn-tr-hand .pn-tr-row{margin:0}.pn-tr-hand .pn-tr-row>.pc{--w:40px}
+.pn-tr-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pn-tr-opts .btn.fold{border-color:var(--bad);color:var(--bad)}
+.pn-tr-right{border-color:var(--ok)!important;box-shadow:0 0 0 2px var(--ok)}
+.pn-tr-wrong{border-color:var(--bad)!important;box-shadow:0 0 0 2px var(--bad);opacity:.8}
+.pn-tr-fb{min-height:48px;margin-top:12px;font-size:16px;line-height:1.5}
+
 </style>
 </head>
 <body>
@@ -401,6 +424,7 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
       <button id="hRules"><i>📖</i><span data-t="rules"></span></button>
       <button id="hStats"><i>📊</i><span data-t="stats"></span></button>
       <button id="hReplays"><i>🎞️</i><span data-t="replays"></span></button>
+      <button id="hTrain"><i>🎓</i><span data-t="trTitle"></span></button>
       <button id="hSettings"><i>⚙️</i><span data-t="settings"></span></button>
     </div>
     <div class="badge">AppNest · <span id="verLbl"></span></div>
@@ -442,6 +466,7 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 <section class="scr" id="stats"><div class="bar"><button class="back" data-home></button><h2 data-t="stats"></h2></div><div class="wrap" id="statBody"></div></section>
 <section class="scr" id="replays"><div class="bar"><button class="back" data-home></button><h2 data-t="replays"></h2></div><div class="wrap" id="repBody"></div></section>
 <section class="scr" id="rules"><div class="bar"><button class="back" data-home></button><h2 data-t="rules"></h2></div><div class="wrap rules" id="rulesBody"></div></section>
+<section class="scr" id="train"><div class="bar"><button class="back" data-home></button><h2 data-t="trTitle"></h2></div><div class="wrap" id="trainBody"></div></section>
 <section class="scr" id="about"><div class="bar"><button class="back" data-home></button><h2 data-t="about"></h2></div><div class="wrap" id="aboutBody"></div></section>
 <div id="ovs"></div>
 <div id="bubbles"></div>
@@ -1295,7 +1320,7 @@ if (typeof module !== 'undefined') module.exports = PKAI;
 /* =====================================================================
    PokerNest — app core (storage · settings · screens · cards · sound · backup)
    ===================================================================== */
-const APP_VERSION = '1.2.1';
+const APP_VERSION = '1.3.0';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const P = 'poker_';
@@ -1460,6 +1485,67 @@ function restore(file) {
 
 /* ---- i18n/he.js ---- */
 LANG.he = {
+anHand:"ניתוח היד",
+anMatch:"ניתוח המשחק",
+anWorking:"מנתח את ההחלטות שלך…",
+anScore:"{0} מתוך {1} החלטות טובות",
+anLast10:"לפי 10 הידיים האחרונות שנשמרו.",
+anNone:"אין ביד הזו החלטות שלך לניתוח.",
+anNote:"הניתוח רואה רק מה שראית באותו רגע, ומשווה את סיכויי הזכייה שלך למחיר ההשוואה. ✓ טוב · ! כדאי לחשוב שוב · ✗ טעות ברורה.",
+youDid:"עשית: {0}",
+stPre:"לפני הפלופ",
+stFlop:"בפלופ",
+stTurn:"בטרן",
+stRiver:"בריבר",
+stDraw:"החלפה",
+stDraw1:"לפני ההחלפה",
+stDraw2:"אחרי ההחלפה",
+stThree:"בסבב ההימורים",
+stCarib:"מול הדילר",
+vGoodShort:"החלטה טובה.",
+vFoldFree:"קיפלת כשאפשר היה לעשות צ'ק בחינם.",
+vFoldGood:"קיפלת עם {0}% סיכוי לנצח — וכדי להשוות היה צריך רק {1}%.",
+vFoldOk:"נכון לקפל: {0}% סיכוי, וההשוואה דרשה {1}%.",
+vCallBad:"השווית עם {0}% סיכוי — אבל ההשוואה דרשה לפחות {1}%.",
+vCallOk:"השוואה טובה: {0}% סיכוי מול {1}% שנדרשו.",
+vMissValue:"יד חזקה ({0}% סיכוי) — הימור או העלאה היו מרוויחים יותר.",
+vCheckOk:"צ'ק סביר ({0}% סיכוי).",
+vBluff:"הימרת עם {0}% סיכוי — זה בלוף. לפעמים עובד, אבל עולה ביוקר.",
+vBetOk:"הימור טוב ({0}% סיכוי).",
+vBroke:"שברת {0} כשהחלפת קלפים.",
+vBrokeMade:"החלפת קלפים מתוך יד מוכנה ({0}).",
+vCaribPlay:"עם {0} כדאי לשחק נגד הדילר.",
+vCaribFold:"יד חלשה מ-A-K — עדיף לקפל ולהפסיד רק את האנטה.",
+trTitle:"אימון",
+tr_daily:"אתגר יומי",
+tr_who:"מי מנצח?",
+tr_call:"להשוות או לקפל?",
+tr_name:"מה היד?",
+tr_menu:"לתפריט האימון",
+trDailySub:"5 שאלות חדשות כל יום",
+trDoneDaily:"סיימת את האתגר של היום — חזור מחר!",
+trWhoSub:"קלפי השולחן ושלוש ידיים — מי לוקח?",
+trCallSub:"קופה, הימור והקלפים שלך — מה עושים?",
+trNameSub:"שבעה קלפים — איזו יד יש לך?",
+trBest:"שיא: {0}/10",
+trStreak:"ימים ברצף: {0}",
+trNote:"השאלות נוצרות ומחושבות על ידי מנוע המשחק — כל תשובה נבדקת, לא נכתבה ביד.",
+trNameQ:"מה היד הכי טובה שלך (5 מתוך 7 הקלפים)?",
+trWhoQ:"מי מנצח ביד הזו?",
+trCallQ:"בקופה יש {0}. היריב הימר {1}. להשוות או לקפל?",
+trYou:"הקלפים שלך",
+trBoard:"השולחן",
+trSplit:"תיקו — מתחלקים",
+trRight:"נכון!",
+trWrong:"לא בדיוק.",
+trNameWhy:"יש לך {0}.",
+trWhoWhy:"{0} מנצח עם {1}.",
+trSplitWhy:"תיקו — {0} לשניים או יותר.",
+trWhyCall:"יש לך {0}% סיכוי, וההשוואה דורשת רק {1}% — כדאי להשוות.",
+trWhyFold:"יש לך רק {0}% סיכוי, וההשוואה דורשת {1}% — עדיף לקפל.",
+trScore:"{0} מתוך {1}",
+trAgain:"עוד סבב",
+trFinish:"לתוצאה",
 preCF:"צ'ק/קפל", preAny:"השווה הכל",
 bn_0:"דני", bn_1:"סבתא רחל", bn_2:"מיקי הכריש", bn_3:"יוסי", bn_4:"אבי הבלופר", bn_5:"נועה", bn_6:"הפרופסור", bn_7:"שירה",
 bs_0:"אגרסיבי — מהמר ומעלה הרבה, לא נבהל", bs_1:"זהירה מאוד — משחקת רק ידיים טובות. כשהיא מהמרת, תיזהר", bs_2:"סבלני ומסוכן — מחכה ליד, ואז לוחץ", bs_3:"משווה כמעט הכל — קשה לבלף אותו", bs_4:"אוהב לבלף — לא כל הימור שלו אמיתי", bs_5:"מאוזנת — קשה לקרוא אותה", bs_6:"משחק לפי הספר", bs_7:"חדה וזהירה — כשהיא מעלה, יש לה משהו",
@@ -1536,6 +1622,67 @@ rules_carib:"<p>משחק נגד <b>הדילר</b> (הקופה), לא נגד שא
 
 /* ---- i18n/en.js ---- */
 LANG.en = {
+anHand:"Analyze this hand",
+anMatch:"Analyze the game",
+anWorking:"Analyzing your decisions…",
+anScore:"{0} of {1} good decisions",
+anLast10:"Based on the last 10 saved hands.",
+anNone:"No decisions of yours to analyze in this hand.",
+anNote:"The analysis sees only what you saw at that moment and compares your chance to win with the price to call. ✓ good · ! worth rethinking · ✗ clear mistake.",
+youDid:"You: {0}",
+stPre:"Pre-flop",
+stFlop:"On the flop",
+stTurn:"On the turn",
+stRiver:"On the river",
+stDraw:"Draw",
+stDraw1:"Before the draw",
+stDraw2:"After the draw",
+stThree:"Betting round",
+stCarib:"Against the dealer",
+vGoodShort:"Good decision.",
+vFoldFree:"You folded when you could check for free.",
+vFoldGood:"You folded with a {0}% chance to win — calling needed only {1}%.",
+vFoldOk:"Right to fold: {0}% chance, calling needed {1}%.",
+vCallBad:"You called with a {0}% chance — the call needed at least {1}%.",
+vCallOk:"Good call: {0}% chance vs {1}% needed.",
+vMissValue:"Strong hand ({0}% chance) — a bet or raise would have won more.",
+vCheckOk:"Reasonable check ({0}% chance).",
+vBluff:"You bet with a {0}% chance — that is a bluff. Sometimes it works, but it is costly.",
+vBetOk:"Good bet ({0}% chance).",
+vBroke:"You broke up {0} when drawing.",
+vBrokeMade:"You drew from a made hand ({0}).",
+vCaribPlay:"With {0} you should play against the dealer.",
+vCaribFold:"Weaker than A-K — better to fold and lose only the ante.",
+trTitle:"Training",
+tr_daily:"Daily challenge",
+tr_who:"Who wins?",
+tr_call:"Call or fold?",
+tr_name:"What's the hand?",
+tr_menu:"Training menu",
+trDailySub:"5 new questions every day",
+trDoneDaily:"You've done today's challenge — come back tomorrow!",
+trWhoSub:"The board and three hands — who takes it?",
+trCallSub:"Pot, bet and your cards — what do you do?",
+trNameSub:"Seven cards — which hand do you have?",
+trBest:"best: {0}/10",
+trStreak:"streak: {0} days",
+trNote:"Questions are generated and computed by the game engine — every answer is checked, not hand-written.",
+trNameQ:"What is your best hand (5 of the 7 cards)?",
+trWhoQ:"Who wins this hand?",
+trCallQ:"The pot is {0}. Your opponent bets {1}. Call or fold?",
+trYou:"Your cards",
+trBoard:"The board",
+trSplit:"Tie — split pot",
+trRight:"Right!",
+trWrong:"Not quite.",
+trNameWhy:"You have {0}.",
+trWhoWhy:"{0} wins with {1}.",
+trSplitWhy:"Tie — {0} for two or more.",
+trWhyCall:"You have a {0}% chance and calling needs only {1}% — call.",
+trWhyFold:"You have only {0}% and calling needs {1}% — fold.",
+trScore:"{0} of {1}",
+trAgain:"Another round",
+trFinish:"See result",
 preCF:"Check/Fold", preAny:"Call any",
 bn_0:"Danny", bn_1:"Grandma Rachel", bn_2:"Mickey the Shark", bn_3:"Yossi", bn_4:"Avi the Bluffer", bn_5:"Noa", bn_6:"The Professor", bn_7:"Shira",
 bs_0:"Aggressive — bets and raises a lot, never scared", bs_1:"Very tight — plays only good hands. When she bets, watch out", bs_2:"Patient and dangerous — waits for a hand, then pushes", bs_3:"Calls almost everything — hard to bluff", bs_4:"Loves to bluff — not every bet is real", bs_5:"Balanced — hard to read", bs_6:"Plays by the book", bs_7:"Sharp and careful — when she raises, she has something",
@@ -1612,6 +1759,67 @@ rules_carib:"<p>You play against <b>the dealer</b> (the house), not the other pl
 
 /* ---- i18n/ru.js ---- */
 LANG.ru = {
+anHand:"Разбор раздачи",
+anMatch:"Разбор игры",
+anWorking:"Разбираем ваши решения…",
+anScore:"{0} из {1} хороших решений",
+anLast10:"По последним 10 сохранённым раздачам.",
+anNone:"В этой раздаче нет ваших решений для разбора.",
+anNote:"Разбор видит только то, что видели вы, и сравнивает ваш шанс с ценой колла. ✓ хорошо · ! стоит подумать · ✗ явная ошибка.",
+youDid:"Вы: {0}",
+stPre:"До флопа",
+stFlop:"На флопе",
+stTurn:"На тёрне",
+stRiver:"На ривере",
+stDraw:"Обмен",
+stDraw1:"До обмена",
+stDraw2:"После обмена",
+stThree:"Круг торговли",
+stCarib:"Против дилера",
+vGoodShort:"Хорошее решение.",
+vFoldFree:"Вы сбросили, хотя могли сделать чек бесплатно.",
+vFoldGood:"Вы сбросили с шансом {0}% — для колла хватало {1}%.",
+vFoldOk:"Верно сбросить: шанс {0}%, нужно было {1}%.",
+vCallBad:"Вы заколлировали с шансом {0}% — нужно было хотя бы {1}%.",
+vCallOk:"Хороший колл: {0}% против нужных {1}%.",
+vMissValue:"Сильная рука ({0}%) — ставка или рейз принесли бы больше.",
+vCheckOk:"Разумный чек ({0}%).",
+vBluff:"Вы поставили с шансом {0}% — это блеф. Иногда срабатывает, но дорого.",
+vBetOk:"Хорошая ставка ({0}%).",
+vBroke:"Вы разбили {0} при обмене.",
+vBrokeMade:"Вы меняли карты из готовой руки ({0}).",
+vCaribPlay:"С рукой {0} стоит играть против дилера.",
+vCaribFold:"Слабее A-K — лучше сбросить и потерять только анте.",
+trTitle:"Тренировка",
+tr_daily:"Задание дня",
+tr_who:"Кто выигрывает?",
+tr_call:"Колл или пас?",
+tr_name:"Какая рука?",
+tr_menu:"Меню тренировки",
+trDailySub:"5 новых вопросов каждый день",
+trDoneDaily:"Задание на сегодня выполнено — приходите завтра!",
+trWhoSub:"Стол и три руки — кто забирает?",
+trCallSub:"Банк, ставка и ваши карты — что делать?",
+trNameSub:"Семь карт — какая у вас рука?",
+trBest:"рекорд: {0}/10",
+trStreak:"серия: {0} дн.",
+trNote:"Вопросы создаёт и считает движок игры — каждый ответ проверен.",
+trNameQ:"Какая ваша лучшая рука (5 из 7 карт)?",
+trWhoQ:"Кто выигрывает эту раздачу?",
+trCallQ:"В банке {0}. Соперник ставит {1}. Колл или пас?",
+trYou:"Ваши карты",
+trBoard:"Стол",
+trSplit:"Ничья — делёж",
+trRight:"Верно!",
+trWrong:"Не совсем.",
+trNameWhy:"У вас {0}.",
+trWhoWhy:"{0} выигрывает: {1}.",
+trSplitWhy:"Ничья — {0} у двоих или больше.",
+trWhyCall:"Ваш шанс {0}%, а для колла нужно {1}% — коллируйте.",
+trWhyFold:"Ваш шанс лишь {0}%, а нужно {1}% — пас.",
+trScore:"{0} из {1}",
+trAgain:"Ещё раунд",
+trFinish:"К результату",
 preCF:"Чек/Пас", preAny:"Колл любой",
 bn_0:"Дэнни", bn_1:"Бабушка Рахель", bn_2:"Мики-Акула", bn_3:"Йоси", bn_4:"Ави-Блефун", bn_5:"Ноа", bn_6:"Профессор", bn_7:"Шира",
 bs_0:"Агрессивный — много ставит и повышает, не боится", bs_1:"Очень осторожная — играет только хорошие руки. Если ставит — берегись", bs_2:"Терпеливый и опасный — ждёт руку и давит", bs_3:"Коллирует почти всё — его трудно переблефовать", bs_4:"Любит блефовать — не каждая ставка настоящая", bs_5:"Сбалансированная — её трудно читать", bs_6:"Играет по учебнику", bs_7:"Острая и осторожная — если повышает, у неё что-то есть",
@@ -1688,6 +1896,67 @@ rules_carib:"<p>Игра против <b>дилера</b> (заведения), 
 
 /* ---- i18n/es.js ---- */
 LANG.es = {
+anHand:"Analizar la mano",
+anMatch:"Analizar la partida",
+anWorking:"Analizando tus decisiones…",
+anScore:"{0} de {1} decisiones buenas",
+anLast10:"Según las últimas 10 manos guardadas.",
+anNone:"No hay decisiones tuyas para analizar en esta mano.",
+anNote:"El análisis solo ve lo que viste en ese momento y compara tu probabilidad con el precio de igualar. ✓ bien · ! piénsalo · ✗ error claro.",
+youDid:"Hiciste: {0}",
+stPre:"Antes del flop",
+stFlop:"En el flop",
+stTurn:"En el turn",
+stRiver:"En el river",
+stDraw:"Cambio",
+stDraw1:"Antes del cambio",
+stDraw2:"Después del cambio",
+stThree:"Ronda de apuestas",
+stCarib:"Contra el crupier",
+vGoodShort:"Buena decisión.",
+vFoldFree:"Te retiraste cuando podías pasar gratis.",
+vFoldGood:"Te retiraste con {0}% de probabilidad — igualar solo necesitaba {1}%.",
+vFoldOk:"Bien retirarse: {0}%, se necesitaba {1}%.",
+vCallBad:"Igualaste con {0}% — necesitabas al menos {1}%.",
+vCallOk:"Buen igualar: {0}% frente a {1}% necesario.",
+vMissValue:"Mano fuerte ({0}%) — apostar o subir habría ganado más.",
+vCheckOk:"Pasar es razonable ({0}%).",
+vBluff:"Apostaste con {0}% — eso es un farol. A veces funciona, pero sale caro.",
+vBetOk:"Buena apuesta ({0}%).",
+vBroke:"Rompiste {0} al cambiar cartas.",
+vBrokeMade:"Cambiaste cartas de una mano hecha ({0}).",
+vCaribPlay:"Con {0} conviene jugar contra el crupier.",
+vCaribFold:"Más débil que A-K — mejor retirarse y perder solo el ante.",
+trTitle:"Entrenamiento",
+tr_daily:"Reto diario",
+tr_who:"¿Quién gana?",
+tr_call:"¿Igualar o retirarse?",
+tr_name:"¿Qué mano es?",
+tr_menu:"Menú de entrenamiento",
+trDailySub:"5 preguntas nuevas cada día",
+trDoneDaily:"¡Ya hiciste el reto de hoy — vuelve mañana!",
+trWhoSub:"La mesa y tres manos — ¿quién se lo lleva?",
+trCallSub:"Bote, apuesta y tus cartas — ¿qué haces?",
+trNameSub:"Siete cartas — ¿qué mano tienes?",
+trBest:"récord: {0}/10",
+trStreak:"racha: {0} días",
+trNote:"Las preguntas las genera y calcula el motor del juego — cada respuesta está comprobada.",
+trNameQ:"¿Cuál es tu mejor mano (5 de las 7 cartas)?",
+trWhoQ:"¿Quién gana esta mano?",
+trCallQ:"El bote es {0}. Tu rival apuesta {1}. ¿Igualar o retirarse?",
+trYou:"Tus cartas",
+trBoard:"La mesa",
+trSplit:"Empate — se reparte",
+trRight:"¡Correcto!",
+trWrong:"No exactamente.",
+trNameWhy:"Tienes {0}.",
+trWhoWhy:"{0} gana con {1}.",
+trSplitWhy:"Empate — {0} para dos o más.",
+trWhyCall:"Tienes {0}% y igualar necesita solo {1}% — iguala.",
+trWhyFold:"Tienes solo {0}% y se necesita {1}% — retírate.",
+trScore:"{0} de {1}",
+trAgain:"Otra ronda",
+trFinish:"Ver resultado",
 preCF:"Pasar/Retirarse", preAny:"Igualar todo",
 bn_0:"Danny", bn_1:"Abuela Raquel", bn_2:"Miki el Tiburón", bn_3:"Yossi", bn_4:"Avi el Farolero", bn_5:"Noa", bn_6:"El Profesor", bn_7:"Shira",
 bs_0:"Agresivo — apuesta y sube mucho, no se asusta", bs_1:"Muy cauta — solo juega buenas manos. Si apuesta, cuidado", bs_2:"Paciente y peligroso — espera su mano y presiona", bs_3:"Iguala casi todo — difícil de engañar", bs_4:"Le encanta farolear — no toda apuesta es real", bs_5:"Equilibrada — difícil de leer", bs_6:"Juega según el manual", bs_7:"Aguda y cauta — si sube, tiene algo",
@@ -1764,6 +2033,67 @@ rules_carib:"<p>Se juega contra <b>el crupier</b> (la casa), no contra los demá
 
 /* ---- i18n/ar.js ---- */
 LANG.ar = {
+anHand:"تحليل اليد",
+anMatch:"تحليل اللعبة",
+anWorking:"جارٍ تحليل قراراتك…",
+anScore:"{0} من {1} قرارات جيدة",
+anLast10:"حسب آخر 10 أيدٍ محفوظة.",
+anNone:"لا توجد قرارات لك في هذه اليد.",
+anNote:"التحليل يرى فقط ما رأيته في تلك اللحظة ويقارن فرصتك بثمن المجاراة. ✓ جيد · ! فكّر مجددًا · ✗ خطأ واضح.",
+youDid:"فعلت: {0}",
+stPre:"قبل الفلوب",
+stFlop:"في الفلوب",
+stTurn:"في التيرن",
+stRiver:"في الريفر",
+stDraw:"التبديل",
+stDraw1:"قبل التبديل",
+stDraw2:"بعد التبديل",
+stThree:"جولة الرهان",
+stCarib:"ضد الموزّع",
+vGoodShort:"قرار جيد.",
+vFoldFree:"انسحبت بينما كان التمرير مجانيًا.",
+vFoldGood:"انسحبت وفرصتك {0}% — والمجاراة احتاجت {1}% فقط.",
+vFoldOk:"الانسحاب صحيح: فرصتك {0}% والمطلوب {1}%.",
+vCallBad:"جاريت وفرصتك {0}% — والمطلوب {1}% على الأقل.",
+vCallOk:"مجاراة جيدة: {0}% مقابل {1}% مطلوبة.",
+vMissValue:"يد قوية ({0}%) — الرهان أو الرفع كان سيربح أكثر.",
+vCheckOk:"تمرير معقول ({0}%).",
+vBluff:"راهنت وفرصتك {0}% — هذه خدعة. تنجح أحيانًا لكنها مكلفة.",
+vBetOk:"رهان جيد ({0}%).",
+vBroke:"كسرت {0} عند التبديل.",
+vBrokeMade:"بدّلت من يد جاهزة ({0}).",
+vCaribPlay:"مع {0} الأفضل أن تلعب ضد الموزّع.",
+vCaribFold:"أضعف من A-K — الأفضل الانسحاب وخسارة الأنتي فقط.",
+trTitle:"تدريب",
+tr_daily:"تحدي اليوم",
+tr_who:"من يفوز؟",
+tr_call:"مجاراة أم انسحاب؟",
+tr_name:"ما اليد؟",
+tr_menu:"قائمة التدريب",
+trDailySub:"5 أسئلة جديدة كل يوم",
+trDoneDaily:"أنهيت تحدي اليوم — عد غدًا!",
+trWhoSub:"الطاولة وثلاث أيدٍ — من يأخذ الوعاء؟",
+trCallSub:"الوعاء والرهان وأوراقك — ماذا تفعل؟",
+trNameSub:"سبع أوراق — ما يدك؟",
+trBest:"الأفضل: {0}/10",
+trStreak:"سلسلة: {0} أيام",
+trNote:"الأسئلة يولّدها ويحسبها محرك اللعبة — كل إجابة مُتحقق منها.",
+trNameQ:"ما أفضل يد لديك (5 من 7 أوراق)؟",
+trWhoQ:"من يفوز بهذه اليد؟",
+trCallQ:"في الوعاء {0}. خصمك راهن {1}. مجاراة أم انسحاب؟",
+trYou:"أوراقك",
+trBoard:"الطاولة",
+trSplit:"تعادل — تقاسم",
+trRight:"صحيح!",
+trWrong:"ليس تمامًا.",
+trNameWhy:"لديك {0}.",
+trWhoWhy:"{0} يفوز بـ{1}.",
+trSplitWhy:"تعادل — {0} لاثنين أو أكثر.",
+trWhyCall:"فرصتك {0}% والمجاراة تحتاج {1}% فقط — جارِ.",
+trWhyFold:"فرصتك {0}% فقط والمطلوب {1}% — انسحب.",
+trScore:"{0} من {1}",
+trAgain:"جولة أخرى",
+trFinish:"النتيجة",
 preCF:"تمرير/انسحاب", preAny:"مجاراة أي مبلغ",
 bn_0:"داني", bn_1:"الجدة راحيل", bn_2:"ميكي القرش", bn_3:"يوسي", bn_4:"آفي المخادع", bn_5:"نوعا", bn_6:"البروفيسور", bn_7:"شيرا",
 bs_0:"هجومي — يراهن ويرفع كثيرًا ولا يخاف", bs_1:"حذرة جدًا — تلعب الأيدي الجيدة فقط. إذا راهنت فاحذر", bs_2:"صبور وخطير — ينتظر يدًا ثم يضغط", bs_3:"يجاري كل شيء تقريبًا — يصعب خداعه", bs_4:"يحب الخداع — ليس كل رهان حقيقيًا", bs_5:"متوازنة — يصعب قراءتها", bs_6:"يلعب وفق الكتاب", bs_7:"حادة وحذرة — إذا رفعت فلديها شيء",
@@ -2012,7 +2342,7 @@ function replayOf(M, me) {
 function saveReplay(r, v, me) {
   if (!r) return;
   const R = LS.get('replays', []);
-  R.unshift(Object.assign(r, { d: Date.now(), mode: G.mode, names: Array.from({ length: v.n }, (_, i) => nameOf(v, i)), seat: me, sum: resultLine(v, true) }));
+  R.unshift(Object.assign(r, { mid: G.id, d: Date.now(), mode: G.mode, names: Array.from({ length: v.n }, (_, i) => nameOf(v, i)), seat: me, sum: resultLine(v, true) }));
   R.length = Math.min(R.length, 10); LS.set('replays', R);
 }
 function statKey() { return G.var + '_' + (G.mode === 'cpu' ? 'cpu' + G.level : G.mode); }
@@ -2257,10 +2587,10 @@ function renderBar(v) {
   else if (v.phase === 'end' || v.phase === 'wait') {
     const broke = me >= 0 && !v.out[me] && v.structure !== 'tour' && v.stacks[me] < (v.g === 'carib' ? 3 * v.ante : 1);
     if (broke) h = '<button class="btn main" id="bRebuy">💰 ' + esc(T('rebuyX', chips(v.start))) + '</button>';
-    else if (isGuest()) h = '<div class="wait">' + esc(T('nextSoon')) + ' <span data-next></span></div>';
+    else if (isGuest()) h = (canAnalyze(v) ? '<button class="btn sm" id="bAn" aria-label="' + esc(T('anHand')) + '">🔍</button>' : '') + '<div class="wait">' + esc(T('nextSoon')) + ' <span data-next></span></div>';
     else if (G.mode === 'cpu' && G.M.out[0] && !WATCH) h = '<button class="btn main" id="bOutOpts">' + esc(T('whatNow')) + '</button>';
     else if (v.phase === 'wait') h = '<div class="wait">' + esc(T('waitPlayers')) + '</div>';
-    else h = '<button class="btn main" id="bNextH">' + esc(T('nextHand')) + ' <small data-next></small></button>';
+    else h = (canAnalyze(v) ? '<button class="btn sm" id="bAn" aria-label="' + esc(T('anHand')) + '">🔍</button>' : '') + '<button class="btn main" id="bNextH">' + esc(T('nextHand')) + ' <small data-next></small></button>';
   } else if (!myTurn && canPre(v)) {
     const toCall = Math.max(0, v.cur - v.bet[me]), amt = Math.min(toCall, v.stacks[me]), on = k => PRE && PRE.kind === k ? 'true' : 'false';
     h = toCall === 0
@@ -2282,6 +2612,7 @@ function renderBar(v) {
   if (RAISE != null && myTurn) renderRaise(v); else rp.innerHTML = '';
   const mt = $('#myTm'); mt.classList.toggle('hide', !(myTurn && G.tEnd));
 }
+function canAnalyze(v) { if (!G || G.mode === 'two' || v.seat < 0 || v.phase !== 'end' || !v.inHand) return false; const r = LS.get('replays', [])[0]; return !!(r && r.no === v.no && r.mid === G.id); }
 /* pre-actions: only on your own seat, in a betting round, while someone else is acting; cleared when the round moves on */
 function preKey(v) { return G.id + ':' + v.no + ':' + v.street; }
 function canPre(v) {
@@ -2356,6 +2687,7 @@ function bindGame() {
     if (b.id === 'bRGo') { const to = RAISE; return doAct(to >= v.opts.allTo ? { a: 'allin' } : { a: 'raise', to }); }
     if (b.id === 'bDraw') return doAct({ a: 'draw', d: DSEL.slice() });
     if (b.id === 'bHint') return showHint(v);
+    if (b.id === 'bAn') { clearTimeout(nextT); G.nextAt = null; return analyzeLastHand(); }
     if (b.id === 'bNextH') { if (isHostOnline() || G.mode !== 'online') goNext(); return; }
     if (b.id === 'bRebuy') return doRebuy();
     if (b.id === 'bOver') return matchOver();
@@ -2458,11 +2790,13 @@ function matchOver(endCash) {
   const title = v.over ? (me >= 0 && v.winner === me ? T('youWon') : v.winner != null ? T('xWonMatch', nameOf(v, v.winner)) : T('matchOver')) : T('sessionSum');
   const host = !isGuest();
   const o = overlay('<h3>' + esc(title) + '</h3>' + body + (G.hints ? '<p class="muted">' + esc(T('hintsUsed', G.hints)) + '</p>' : '') +
-    '<div class="row" style="margin-top:12px">' + (host ? '<button class="btn main" data-k="r">🔁 ' + esc(T('rematch')) + '</button>' : '') + '<button class="btn" data-k="h">' + esc(T('home')) + '</button></div>', 'center');
+    (G.mode !== 'two' && LS.get('replays', []).some(r => r.mid === G.id) ? '<button class="btn" data-k="an" style="width:100%;margin-top:10px">🔍 ' + esc(T('anMatch')) + '</button>' : '') + '<div class="row" style="margin-top:12px">' + (host ? '<button class="btn main" data-k="r">🔁 ' + esc(T('rematch')) + '</button>' : '') + '<button class="btn" data-k="h">' + esc(T('home')) + '</button></div>', 'center');
   o.dataset.lock = '1';
   if (endCash && !v.over && G.mode !== 'online') { matchStats(v, G.mode === 'two' ? null : 0); }
   o.addEventListener('click', e => {
-    const b = e.target.closest('[data-k]'); if (!b) return; closeOv(o);
+    const b = e.target.closest('[data-k]'); if (!b) return;
+    if (b.dataset.k === 'an') { analyzeMatch(); return; }
+    closeOv(o);
     if (b.dataset.k === 'r') rematch();
     else { if (G.mode !== 'online' && (endCash || v.over)) { G = null; saveGame(); } show('home'); renderHome(); }
   });
@@ -2729,6 +3063,209 @@ function bindVoice() {
   $('#vEmo').onclick = emoPanel;
 }
 
+/* ---- analysis.js ---- */
+/* =====================================================================
+   PokerNest — analysis after a hand / after a game.
+   Every hand is rebuilt from its replay (seed + actions). At each of your decisions
+   the engine gives view(M, you) — only what you could see then — and we judge the
+   decision by Monte-Carlo equity against the hands still in play vs the price to call.
+   Only clear mistakes are flagged (≥ 4–12 points away), so the list stays honest.
+   ===================================================================== */
+function anBuild(r) {
+  const M = PK.newMatch({ var: r.var, names: r.names, stacks: r.start, sb: r.sb, bb: r.bb, ante: r.ante, structure: 'cash', limit: r.limit, drawMax: r.drawMax, dealer: r.dealer, noStart: true });
+  M.sb = r.sb; M.bb = r.bb; M.ante = r.ante; M.start = Math.max(...r.start, 1);
+  PK.startHand(M, r.seed);
+  return M;
+}
+const anAct = e => e[1] === 'bet' || e[1] === 'raise' ? { a: 'raise', to: e[2] } : e[1] === 'draw' ? { a: 'draw', d: e[3] || [] } : { a: e[1] };
+function anStreet(v) {
+  if (v.g === 'carib') return T('stCarib');
+  if (v.g === 'three') return T('stThree');
+  if (v.g === 'draw5') return v.phase === 'draw' ? T('stDraw') : v.street === 0 ? T('stDraw1') : T('stDraw2');
+  return [T('stPre'), T('stFlop'), T('stTurn'), T('stRiver')][v.board.length === 0 ? 0 : v.board.length - 2] || '';
+}
+const anWord = (g, a) => ({ fold: T('fold'), check: T('check'), call: g === 'carib' ? T('play') : T('call'), bet: T('bet'), raise: T('raise'), draw: T('stDraw') }[a] || a);
+
+/* one decision → { v (lvl: good | warn | bad), text } */
+function anJudge(v, e) {
+  const o = v.opts, me = v.seat, a = e[1];
+  if (o.decide) {
+    const rec = PKAI.hint(v).a.a, k = PK.handCat('holdem', PK.evalN(v.cards[me]));
+    if (rec === a) return { lvl: 'good', text: T('vGoodShort') };
+    return rec === 'call' ? { lvl: 'bad', text: T('vCaribPlay', T(k)) } : { lvl: 'warn', text: T('vCaribFold') };
+  }
+  if (o.draw) {
+    const hole = v.cards[me], kept = hole.filter(c => !(e[3] || []).includes(c));
+    const full = PK.cat(PK.evalN(hole)), after = kept.length ? PK.cat(PK.evalN(kept)) : 0;
+    if (full >= 4 && full !== 7 && (e[3] || []).length) return { lvl: 'bad', text: T('vBrokeMade', T('h' + full)) };
+    if (full >= 1 && full <= 3 && after < full) return { lvl: 'bad', text: T('vBroke', T('h' + full)) };
+    return { lvl: 'good', text: T('vGoodShort') };
+  }
+  const { eq, opps } = PKAI.equity(v, v.g === 'omaha' ? 300 : 600, true);
+  const call = o.toCall, po = call ? call / (o.pot + call) : 0, fair = 1 / (Math.max(1, opps) + 1);
+  const P = x => Math.round(x * 100);
+  if (a === 'fold') {
+    if (o.check) return { lvl: 'bad', text: T('vFoldFree') };
+    if (eq > po + .12) return { lvl: 'bad', text: T('vFoldGood', P(eq), P(po)) };
+    if (eq > po + .04) return { lvl: 'warn', text: T('vFoldGood', P(eq), P(po)) };
+    return { lvl: 'good', text: T('vFoldOk', P(eq), P(po)) };
+  }
+  if (a === 'call') {
+    if (eq < po - .12) return { lvl: 'bad', text: T('vCallBad', P(eq), P(po)) };
+    if (eq < po - .04) return { lvl: 'warn', text: T('vCallBad', P(eq), P(po)) };
+    if (o.raise && eq > fair + .3) return { lvl: 'warn', text: T('vMissValue', P(eq)) };
+    return { lvl: 'good', text: T('vCallOk', P(eq), P(po)) };
+  }
+  if (a === 'check') {
+    if (o.raise && eq > fair + .3) return { lvl: 'warn', text: T('vMissValue', P(eq)) };
+    return { lvl: 'good', text: T('vCheckOk', P(eq)) };
+  }
+  if (eq < fair - .1) return { lvl: 'warn', text: T('vBluff', P(eq)) };
+  return { lvl: 'good', text: T('vBetOk', P(eq)) };
+}
+
+/* all your decisions in one replayed hand (async: yields between decisions so the screen stays alive) */
+async function anHand(r) {
+  const M = anBuild(r), out = [];
+  for (const e of r.log) {
+    if (e[0] < 0 || e[1] === 'sb' || e[1] === 'bb') continue;
+    if (e[0] === r.seat && M.H.turn === r.seat) {
+      const v = PK.view(M, r.seat);
+      if (v.opts) { out.push({ e, v, j: anJudge(v, e), street: anStreet(v), cards: v.cards[r.seat].slice(), board: v.board.slice() }); await new Promise(res => setTimeout(res, 0)); }
+    }
+    if (!PK.apply(M, e[0], anAct(e))) break;
+  }
+  return out;
+}
+const anMark = lvl => lvl === 'good' ? '✓' : lvl === 'warn' ? '!' : '✗';
+const anColor = lvl => lvl === 'good' ? 'var(--ok)' : lvl === 'warn' ? 'var(--acc)' : 'var(--bad)';
+
+/* the window: one hand or a whole game (list of replays) */
+async function showAnalysis(list, title) {
+  list = list.filter(r => r && r.seat >= 0 && r.mode !== 'two');
+  const o = overlay('<h3>🔍 ' + esc(title) + '</h3><div id="anBody"><p class="muted">' + esc(T('anWorking')) + '</p></div><div class="row" style="margin-top:10px"><button class="btn main" data-c>' + esc(T('close')) + '</button></div>');
+  o.querySelector('[data-c]').onclick = () => closeOv(o);
+  let all = [], html = '';
+  for (const r of list.slice().reverse()) {
+    let d; try { d = await anHand(r); } catch (err) { logErr('analysis ' + err.message); continue; }
+    if (!o.isConnected) return;
+    if (!d.length) continue;
+    all = all.concat(d);
+    html += '<div class="pn-an-hand"><div class="pn-an-h">' + esc(vName(r.var)) + ' · ' + esc(T('handN', r.no)) + '</div>' + d.map(x =>
+      '<div class="pn-an-row"><span class="pn-an-mark" style="color:' + anColor(x.j.lvl) + '">' + anMark(x.j.lvl) + '</span><div class="pn-an-txt"><div class="pn-an-cards">' +
+      x.cards.map(c => cardHTML(c)).join('') + (x.board.length ? '<i></i>' + x.board.map(c => cardHTML(c)).join('') : '') + '</div>' +
+      '<b>' + esc(x.street) + ' · ' + esc(T('youDid', anWord(r.var, x.e[1]))) + '</b><span>' + esc(x.j.text) + '</span></div></div>').join('') + '</div>';
+  }
+  const good = all.filter(x => x.j.lvl === 'good').length;
+  const body = o.querySelector('#anBody'); if (!body) return;
+  body.innerHTML = all.length ? '<p class="pn-an-score">' + esc(T('anScore', good, all.length)) + '</p>' + (list.length > 1 ? '<p class="muted">' + esc(T('anLast10')) + '</p>' : '') + html + '<p class="muted">' + esc(T('anNote')) + '</p>'
+    : '<p>' + esc(T('anNone')) + '</p>';
+}
+function analyzeLastHand() { const R = LS.get('replays', []); if (R[0]) showAnalysis([R[0]], T('anHand')); }
+function analyzeMatch() { const R = LS.get('replays', []).filter(r => r.mid && G && r.mid === G.id); showAnalysis(R, T('anMatch')); }
+
+/* ---- train.js ---- */
+/* =====================================================================
+   PokerNest — training: "who wins?", "call or fold?", "what's the hand?" and a daily challenge.
+   Questions are generated by the engine from a seed, so the daily challenge is the same
+   for everyone on the same day and every answer is computed, not hand-written.
+   ===================================================================== */
+const TR_KINDS = ['who', 'call', 'name'];
+const dayKey = d => { d = d || new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+function trGen(kind, seed) {
+  const rnd = PK.rng(seed), deck = PK.deck(seed);
+  if (kind === 'name') {                                      // seven cards: name the best hand
+    for (let t = 0; t < 40; t++) {
+      const d = PK.deck((seed + t * 7919) >>> 0), cs = d.slice(0, 7), k = PK.handCat('holdem', PK.evalN(cs));
+      if (k === 'h0' && rnd() < .7) continue;                 // fewer boring "high card" questions
+      const pool = ['h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8'].filter(x => x !== k).sort(() => rnd() - .5).slice(0, 3);
+      return { kind, hole: cs.slice(0, 2), board: cs.slice(2), opts: pool.concat([k]).sort(() => rnd() - .5), ans: k };
+    }
+  }
+  if (kind === 'who') {                                       // board + three hands: who wins (or a split)
+    const board = deck.slice(0, 5), hands = [deck.slice(5, 7), deck.slice(7, 9), deck.slice(9, 11)];
+    const sc = hands.map(h => PK.evalN(h.concat(board))), best = Math.max(...sc), w = sc.map((x, i) => x === best ? i : -1).filter(i => i >= 0);
+    return { kind, board, hands, ans: w.length > 1 ? 'split' : String(w[0]), win: w, k: PK.handCat('holdem', best) };
+  }
+  // call or fold: your two cards, a flop or turn, one opponent bets into the pot — is the price right?
+  for (let t = 0; t < 60; t++) {
+    const d = PK.deck((seed + t * 104729) >>> 0), hole = d.slice(0, 2), board = d.slice(2, rnd() < .5 ? 5 : 6);
+    const pot = 100, bet = [25, 50, 75, 100, 150][Math.floor(rnd() * 5)], po = bet / (pot + 2 * bet);
+    const known = new Set(hole.concat(board)), unk = []; for (let c = 0; c < 52; c++) if (!known.has(c)) unk.push(c);
+    let win = 0; const N = 1500, r2 = PK.rng(seed ^ (t + 1) * 2654435761);
+    for (let i = 0; i < N; i++) {
+      const u = unk.slice(); let n = u.length; const take = () => { const j = Math.floor(r2() * n); const c = u[j]; u[j] = u[--n]; return c; };
+      const opp = [take(), take()], b = board.slice(); while (b.length < 5) b.push(take());
+      const a = PK.evalN(hole.concat(b)), o = PK.evalN(opp.concat(b)); win += a > o ? 1 : a === o ? .5 : 0;
+    }
+    const eq = win / N; if (Math.abs(eq - po) < .08) continue;          // only clear-cut spots
+    return { kind: 'call', hole, board, pot, bet, eq, po, ans: eq > po ? 'call' : 'fold' };
+  }
+  return trGen('name', seed + 1);
+}
+let TR = null;     // the running round: { kind, qs, i, right, daily }
+function renderTrain() {
+  const S = LS.get('train', { best: {}, streak: 0, last: '', bestStreak: 0 }), today = dayKey(), done = S.last === today;
+  const card = (k, ic, sub) => '<button class="mode" data-tr="' + k + '"><span class="ic">' + ic + '</span><span><b>' + esc(T('tr_' + k)) + '</b><span>' + esc(sub) + '</span></span></button>';
+  $('#trainBody').innerHTML = '<div class="modes">' +
+    '<button class="mode main" data-tr="daily"><span class="ic">📅</span><span><b>' + esc(T('tr_daily')) + '</b><span>' + esc(done ? T('trDoneDaily') : T('trDailySub')) + (S.streak ? ' · ' + esc(T('trStreak', S.streak)) : '') + '</span></span></button>' +
+    card('who', '🏆', T('trWhoSub') + (S.best.who != null ? ' · ' + T('trBest', S.best.who) : '')) +
+    card('call', '⚖️', T('trCallSub') + (S.best.call != null ? ' · ' + T('trBest', S.best.call) : '')) +
+    card('name', '🃏', T('trNameSub') + (S.best.name != null ? ' · ' + T('trBest', S.best.name) : '')) + '</div>' +
+    '<p class="muted" style="margin-top:14px">' + esc(T('trNote')) + '</p>';
+  $$('#trainBody [data-tr]').forEach(b => b.onclick = () => trStart(b.dataset.tr));
+}
+function trStart(kind) {
+  const daily = kind === 'daily', N = daily ? 5 : 10, base = daily ? [...dayKey()].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) : PK.newSeed();
+  const S = LS.get('train', {}); if (daily && S.last === dayKey()) { toast(T('trDoneDaily')); }
+  const qs = Array.from({ length: N }, (_, i) => trGen(daily ? TR_KINDS[i % 3] : kind, (base + i * 2246822519) >>> 0));
+  TR = { kind, qs, i: 0, right: 0, daily, answered: false };
+  trDraw();
+}
+function trDraw() {
+  const q = TR.qs[TR.i], b = $('#trainBody'), row = cs => '<div class="pn-tr-row">' + cs.map(c => cardHTML(c)).join('') + '</div>';
+  let h = '<div class="pn-tr-top"><span>' + esc(T('tr_' + (TR.daily ? 'daily' : TR.kind))) + '</span><span dir="ltr">' + (TR.i + 1) + ' / ' + TR.qs.length + '</span></div>';
+  if (q.kind === 'name') h += '<p class="pn-tr-q">' + esc(T('trNameQ')) + '</p>' + '<div class="pn-tr-lab">' + esc(T('trYou')) + '</div>' + row(q.hole) + '<div class="pn-tr-lab">' + esc(T('trBoard')) + '</div>' + row(q.board) +
+    '<div class="pn-tr-opts">' + q.opts.map(k => '<button class="btn" data-ans="' + k + '">' + esc(T(k)) + '</button>').join('') + '</div>';
+  else if (q.kind === 'who') h += '<p class="pn-tr-q">' + esc(T('trWhoQ')) + '</p><div class="pn-tr-lab">' + esc(T('trBoard')) + '</div>' + row(q.board) +
+    '<div class="pn-tr-hands">' + q.hands.map((hh, i) => '<button class="pn-tr-hand" data-ans="' + i + '"><span>' + esc(T('player') + ' ' + (i + 1)) + '</span>' + row(hh) + '</button>').join('') + '</div>' +
+    '<div class="pn-tr-opts"><button class="btn" data-ans="split">' + esc(T('trSplit')) + '</button></div>';
+  else h += '<p class="pn-tr-q">' + esc(T('trCallQ', chips(q.pot), chips(q.bet))) + '</p><div class="pn-tr-lab">' + esc(T('trYou')) + '</div>' + row(q.hole) + '<div class="pn-tr-lab">' + esc(T('trBoard')) + '</div>' + row(q.board) +
+    '<div class="pn-tr-opts"><button class="btn fold" data-ans="fold">' + esc(T('fold')) + '</button><button class="btn main" data-ans="call">' + esc(T('call')) + ' ' + chips(q.bet) + '</button></div>';
+  h += '<div id="trFb" class="pn-tr-fb" aria-live="polite"></div><div class="row" style="margin-top:12px"><button class="btn ghosty" id="trQuit">' + esc(T('close')) + '</button><button class="btn main hide" id="trNext">' + esc(TR.i + 1 < TR.qs.length ? T('next') : T('trFinish')) + '</button></div>';
+  b.innerHTML = h; TR.answered = false;
+  $$('#trainBody [data-ans]').forEach(x => x.onclick = () => trAnswer(x.dataset.ans));
+  $('#trQuit').onclick = () => { TR = null; renderTrain(); };
+  $('#trNext').onclick = () => { if (TR.i + 1 < TR.qs.length) { TR.i++; trDraw(); } else trEnd(); };
+  window.scrollTo(0, 0);
+}
+function trAnswer(a) {
+  if (TR.answered) return; TR.answered = true;
+  const q = TR.qs[TR.i], ok = a === q.ans; if (ok) TR.right++;
+  beep(ok ? 'pot' : 'err'); buzz(ok ? 15 : 40);
+  let why = '';
+  if (q.kind === 'name') why = T('trNameWhy', T(q.ans));
+  else if (q.kind === 'who') why = q.win.length > 1 ? T('trSplitWhy', T(q.k)) : T('trWhoWhy', T('player') + ' ' + (q.win[0] + 1), T(q.k));
+  else why = T(q.ans === 'call' ? 'trWhyCall' : 'trWhyFold', Math.round(q.eq * 100), Math.round(q.po * 100));
+  $$('#trainBody [data-ans]').forEach(x => { x.disabled = true; if (x.dataset.ans === q.ans || (q.kind === 'who' && q.win.length === 1 && x.dataset.ans === String(q.win[0]))) x.classList.add('pn-tr-right'); else if (x.dataset.ans === a) x.classList.add('pn-tr-wrong'); });
+  $('#trFb').innerHTML = '<b style="color:' + (ok ? 'var(--ok)' : 'var(--bad)') + '">' + esc(ok ? T('trRight') : T('trWrong')) + '</b> ' + esc(why);
+  $('#trNext').classList.remove('hide');
+}
+function trEnd() {
+  const S = LS.get('train', { best: {}, streak: 0, last: '', bestStreak: 0 }); S.best = S.best || {};
+  if (TR.daily) {
+    const today = dayKey(), y = new Date(); y.setDate(y.getDate() - 1);
+    if (S.last !== today) { S.streak = S.last === dayKey(y) ? (S.streak || 0) + 1 : 1; S.last = today; S.bestStreak = Math.max(S.bestStreak || 0, S.streak); }
+  } else S.best[TR.kind] = Math.max(S.best[TR.kind] || 0, TR.right);
+  LS.set('train', S);
+  if (TR.right >= TR.qs.length * .8) beep('win');
+  $('#trainBody').innerHTML = '<div style="text-align:center;padding-top:30px"><div style="font-size:60px">' + (TR.right === TR.qs.length ? '🏆' : TR.right >= TR.qs.length * .6 ? '👏' : '💪') + '</div><h2 style="font-family:var(--disp);font-weight:400">' + esc(T('trScore', TR.right, TR.qs.length)) + '</h2>' +
+    (TR.daily ? '<p>' + esc(T('trStreak', S.streak)) + '</p>' : '') + '<div class="row" style="margin-top:16px"><button class="btn" id="trMenu">' + esc(T('tr_menu')) + '</button>' + (TR.daily ? '' : '<button class="btn main" id="trAgain">' + esc(T('trAgain')) + '</button>') + '</div></div>';
+  const k = TR.kind; TR = null;
+  $('#trMenu').onclick = renderTrain;
+  if ($('#trAgain')) $('#trAgain').onclick = () => trStart(k);
+}
+
 /* ---- screens.js ---- */
 /* =====================================================================
    PokerNest — home · game setup · settings · stats · replays · rules · about · tour · init
@@ -2873,7 +3410,7 @@ function replayFrames(r) {
 function playReplay(r) {
   let frames; try { frames = replayFrames(r); } catch (e) { toast(T('replayBad')); return; }
   let i = 0, auto = null, all = false;
-  const o = overlay('<h3>' + esc(T('replay')) + ' · ' + esc(vName(r.var)) + '</h3><div class="rp" id="rpBody"></div><div class="row" dir="ltr" style="margin-top:10px"><button class="btn" data-k="0">⏮</button><button class="btn" data-k="-1">◀</button><button class="btn main" data-k="p">▶</button><button class="btn" data-k="1">▶|</button><button class="btn" data-k="9">⏭</button></div><div class="row" style="margin-top:8px">' + (r.mode === 'cpu' && r.hide.length ? '<button class="btn ghosty" data-k="all">👁 ' + esc(T('showAll')) + '</button>' : '') + '<button class="btn ghosty" data-k="x">' + esc(T('close')) + '</button></div>', 'center');
+  const o = overlay('<h3>' + esc(T('replay')) + ' · ' + esc(vName(r.var)) + '</h3><div class="rp" id="rpBody"></div><div class="row" dir="ltr" style="margin-top:10px"><button class="btn" data-k="0">⏮</button><button class="btn" data-k="-1">◀</button><button class="btn main" data-k="p">▶</button><button class="btn" data-k="1">▶|</button><button class="btn" data-k="9">⏭</button></div><div class="row" style="margin-top:8px">' + (r.mode !== 'two' ? '<button class="btn ghosty" data-k="an">🔍 ' + esc(T('anHand')) + '</button>' : '') + (r.mode === 'cpu' && r.hide.length ? '<button class="btn ghosty" data-k="all">👁 ' + esc(T('showAll')) + '</button>' : '') + '<button class="btn ghosty" data-k="x">' + esc(T('close')) + '</button></div>', 'center');
   function draw() {
     const f = frames[i], H = f.H, e = f.e, nm = s => r.names[s] || '';
     const words = { fold: T('aFold'), check: T('aCheck'), call: r.var === 'carib' ? T('aPlay') : T('aCall'), bet: T('aBet'), raise: T('aRaise') };
@@ -2894,6 +3431,7 @@ function playReplay(r) {
     const k = e.target.closest('[data-k]'); if (!k) return; const v = k.dataset.k;
     if (v === 'x') { clearInterval(auto); closeOv(o); return; }
     if (v === 'all') { all = !all; draw(); return; }
+    if (v === 'an') { showAnalysis([r], T('anHand')); return; }
     if (v === 'p') { if (auto) { clearInterval(auto); auto = null; k.textContent = '▶'; } else { k.textContent = '⏸'; auto = setInterval(() => { if (i < frames.length - 1) { i++; draw(); } else { clearInterval(auto); auto = null; k.textContent = '▶'; } }, 1000); } return; }
     i = v === '0' ? 0 : v === '9' ? frames.length - 1 : Math.max(0, Math.min(frames.length - 1, i + +v)); draw();
   });
@@ -2953,6 +3491,7 @@ function init() {
   $('#hStats').onclick = () => { renderStats(); show('stats'); };
   $('#hReplays').onclick = () => { renderReplays(); show('replays'); };
   $('#hSettings').onclick = () => { renderSettings(); show('settings'); };
+  $('#hTrain').onclick = () => { TR = null; renderTrain(); show('train'); };
   $('#vgrid').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { ST.variant = b.dataset.v; saveST(); renderHome(); } };
   $('#mCpu').onclick = () => setupBox('cpu');
   $('#mTwo').onclick = () => setupBox('two');
