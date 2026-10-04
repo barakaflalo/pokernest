@@ -320,6 +320,46 @@ input.in,select.in{width:100%;min-height:48px;border-radius:12px;border:1.5px so
 @media (max-width:370px){.st{width:80px}.st .nm{font-size:12px}.abar .btn{font-size:15px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+.pn-showdown{animation:flipIn .35s ease backwards}
+/* PokerNest visual refresh: scoped presentation, existing theme tokens retained. */
+:root{--pn-white:#fff9ed;--pn-black:#454c5c;--pn-red:#b84247;--pn-green:#3a8662;--pn-purple:#8662ad;--pn-yellow:#d8b956;--pn-shadow:rgba(0,0,0,.4)}
+.oval{background-image:url('felt-1.webp'),radial-gradient(ellipse at 50% 38%,var(--felt1),var(--felt2) 80%);background-blend-mode:soft-light,normal;background-size:256px,cover;border-color:var(--rail1);box-shadow:inset 0 0 0 2px var(--acc),inset 0 0 32px var(--pn-shadow),0 0 0 3px var(--rail2),0 16px 25px var(--pn-shadow)}
+.oval::before{content:'';position:absolute;inset:-8px;border:1px dashed var(--acc);border-radius:inherit;opacity:.45;pointer-events:none}
+.oval::after{content:'';width:110px;height:37px;background:url('table-logo.webp') center/contain no-repeat;opacity:.3}
+.pc{box-shadow:0 3px 6px var(--pn-shadow)}
+.pc .pn-court{position:absolute;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.pc .ix{z-index:1}.pc.bk{background:var(--back1) url('back-1.webp') center/cover}.pc.bk::after{display:none}
+.pc.best{outline:2px solid var(--ok);outline-offset:1px}
+.pn-avatar{width:36px;height:36px;margin:-18px auto 2px;position:relative;border-radius:50%;background:var(--panel);box-shadow:0 2px 5px var(--pn-shadow)}
+.pn-avatar img{width:100%;height:100%;border-radius:50%;border:2px solid var(--acc)}
+.st .bx{padding-top:3px;border-radius:10px;background:linear-gradient(var(--panel2),var(--panel))}
+.st .ac{top:auto;bottom:-9px;max-width:110px;z-index:2;font-size:10px}.st .nm{font-size:12px}.st .sk{font-size:14px}
+.st .tm{inset:-4px;width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--acc2) var(--pn-time,100%),var(--line) 0);overflow:visible;mask:radial-gradient(circle,transparent 62%,black 65%);pointer-events:none}
+.st .tm i{display:none}.st .tm.low{background:conic-gradient(var(--bad) var(--pn-time,100%),var(--line) 0)}
+.st .cs{position:relative;z-index:1;margin-bottom:13px}.st .bx .ac+.nm{padding-top:0}
+.pn-stack{width:30px;height:27px;flex:none;vertical-align:middle}.pot>span{display:flex;align-items:center;gap:5px;border:1px solid var(--feltLine);background:var(--pn-shadow)}
+.bt{padding:0 5px;gap:1px;font-size:11px}.bt .pn-stack{width:23px;height:23px}
+.pn-flight{position:fixed;z-index:9999;pointer-events:none;width:30px;height:42px;--w:30px}.pn-flight .pn-stack{width:36px;height:32px}
+.abar .btn{border-radius:14px;box-shadow:inset 0 1px 0 var(--line),0 3px 6px var(--pn-shadow)}
+.abar [data-a="fold"]{background:color-mix(in srgb,var(--bad) 14%,var(--panel));color:var(--bad)}
+.abar [data-a="call"],.abar [data-a="check"]{background:var(--panel2);color:var(--ink);border-color:var(--acc2)}
+#bRaise{background:linear-gradient(var(--acc2),var(--acc));color:var(--accInk)}
+.rpanel{border-radius:18px 18px 0 0;box-shadow:0 -4px 16px var(--pn-shadow)}
+.hero{background:radial-gradient(ellipse at top,color-mix(in srgb,var(--acc) 16%,var(--panel)),var(--panel));border:1px solid var(--line);border-radius:24px}
+.vcard{background:linear-gradient(145deg,var(--panel2),var(--panel));border-radius:16px;overflow:hidden}
+.pn-game-art{display:flex;direction:ltr;justify-content:center;gap:3px;margin:0 0 8px;pointer-events:none}.pn-game-art .pc{--w:30px}.pn-game-art .pc:nth-child(2){transform:translateY(-3px)}
+.mode{box-shadow:0 3px 10px var(--pn-shadow);border-radius:16px}
+.pn-avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.pn-avatar-pick{background:var(--panel2);border:2px solid var(--line);padding:3px;border-radius:50%;cursor:pointer;min-width:0}.pn-avatar-pick img{display:block;width:100%;border-radius:50%}.pn-avatar-pick[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.pn-result{background:var(--panel);color:var(--acc);padding:7px 10px;border:1px solid var(--acc);border-radius:12px;animation:pn-celebrate .5s ease-out}
+.pass .box{border:2px solid var(--acc);border-radius:24px}.places tr:nth-child(-n+3)>td{background:color-mix(in srgb,var(--acc) 10%,var(--panel))}
+@keyframes pn-celebrate{from{transform:scale(.93);opacity:.4}to{transform:scale(1);opacity:1}}
+@media(max-width:380px){.pn-avatar{width:30px;height:30px;margin-top:-15px}.st .tm{width:38px;height:38px}.pn-game-art .pc{--w:26px}}
+@media(orientation:landscape) and (max-height:500px){.pn-avatar{width:26px;height:26px;margin-top:-12px}.st .tm{width:34px;height:34px}.st .cs{margin-bottom:9px}.st .nm{font-size:11px}.st .sk{font-size:12px}}
+.pn-fast *{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+
+
 </style>
 </head>
 <body>
@@ -1236,7 +1276,7 @@ if (typeof module !== 'undefined') module.exports = PKAI;
 /* =====================================================================
    PokerNest — app core (storage · settings · screens · cards · sound · backup)
    ===================================================================== */
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.1.0';
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const P = 'poker_';
@@ -1258,7 +1298,7 @@ try { navigator.storage && navigator.storage.persist && navigator.storage.persis
 
 /* ---------- settings ---------- */
 const DEF = {
-  name: '', lang: 'he', theme: 'gold', mode: 'night', board: 'felt', four: false, sound: true, vib: true, speed: 'normal', showEq: false,
+  avatar: 1, name: '', lang: 'he', theme: 'gold', mode: 'night', board: 'felt', four: false, sound: true, vib: true, speed: 'normal', showEq: false,
   variant: 'holdem', level: 1, opps: 3, structure: 'tour', stack: 1000, blinds: 20, every: 10, omahaLimit: 'pl', tutDone: false
 };
 const ST = Object.assign({}, DEF, LS.get('set', {}));
@@ -1318,7 +1358,7 @@ function cardHTML(c, cls, attrs) {
   cls = cls || ''; attrs = attrs || '';
   if (c == null || c < 0) return '<div class="pc bk ' + cls + '" ' + attrs + '></div>';
   const s = PK.suit(c), r = PK.rank(c), sc = s === 1 ? 'red' : s === 2 ? 'red s2' : s === 3 ? 's3' : '';
-  const mid = r >= 9 && r <= 11 ? '<div class="face">' + RL[r] + '</div>' : '<div class="pip">' + SUITS[s] + '</div>';
+  const mid = r >= 9 && r <= 11 ? '<img class="pn-court" src="face-' + RL[r].toLowerCase() + '.webp" alt="">' : '<div class="pip">' + SUITS[s] + '</div>';
   return '<div class="pc ' + sc + ' ' + cls + '" data-c="' + c + '" ' + attrs + ' aria-label="' + esc(cardName(c)) + '">' +
     '<div class="ix">' + RL[r] + '<s>' + SUITS[s] + '</s></div>' + mid + '<div class="ix b">' + RL[r] + '<s>' + SUITS[s] + '</s></div></div>';
 }
@@ -1382,6 +1422,7 @@ function restore(file) {
 
 /* ---- i18n/he.js ---- */
 LANG.he = {
+pnAvatar:'בחירת אווטר',
 pokerTitle:"פוקר", tagline:"חמש גרסאות פוקר — מול המחשב, בטלפון אחד או אונליין עם חברים. צ'יפים וירטואליים בלבד.",
 v_holdem:"טקסס הולדם", v_omaha:"אומהה", v_draw5:"5 קלפים", v_three:"3 קלפים", v_carib:"קריבי",
 vs_holdem:"2 קלפים ביד, 5 על השולחן", vs_omaha:"4 ביד — חייבים להשתמש בדיוק ב-2", vs_draw5:"5 ביד, מחליפים עד 3", vs_three:"3 קלפים, סבב אחד מהיר", vs_carib:"כל אחד נגד הדילר",
@@ -1452,6 +1493,7 @@ rules_carib:"<p>משחק נגד <b>הדילר</b> (הקופה), לא נגד שא
 
 /* ---- i18n/en.js ---- */
 LANG.en = {
+pnAvatar:'Choose avatar',
 pokerTitle:"Poker", tagline:"Five kinds of poker — against the computer, on one phone or online with friends. Virtual chips only.",
 v_holdem:"Texas Hold'em", v_omaha:"Omaha", v_draw5:"5-Card Draw", v_three:"3-Card Poker", v_carib:"Caribbean Stud",
 vs_holdem:"2 in hand, 5 on the table", vs_omaha:"4 in hand — use exactly 2", vs_draw5:"5 in hand, swap up to 3", vs_three:"3 cards, one quick round", vs_carib:"everyone against the dealer",
@@ -1522,6 +1564,7 @@ rules_carib:"<p>You play against <b>the dealer</b> (the house), not the other pl
 
 /* ---- i18n/ru.js ---- */
 LANG.ru = {
+pnAvatar:'Выбрать аватар',
 pokerTitle:"Покер", tagline:"Пять видов покера — против компьютера, на одном телефоне или онлайн с друзьями. Только виртуальные фишки.",
 v_holdem:"Техасский холдем", v_omaha:"Омаха", v_draw5:"5-карточный дро", v_three:"3-карточный покер", v_carib:"Карибский стад",
 vs_holdem:"2 на руках, 5 на столе", vs_omaha:"4 на руках — ровно 2 в игру", vs_draw5:"5 на руках, обмен до 3", vs_three:"3 карты, один быстрый круг", vs_carib:"каждый против дилера",
@@ -1592,6 +1635,7 @@ rules_carib:"<p>Игра против <b>дилера</b> (заведения), 
 
 /* ---- i18n/es.js ---- */
 LANG.es = {
+pnAvatar:'Elegir avatar',
 pokerTitle:"Póker", tagline:"Cinco tipos de póker — contra la computadora, en un solo teléfono u online con amigos. Solo fichas virtuales.",
 v_holdem:"Texas Hold'em", v_omaha:"Omaha", v_draw5:"Póker de 5 cartas", v_three:"Póker de 3 cartas", v_carib:"Caribbean Stud",
 vs_holdem:"2 en mano, 5 en la mesa", vs_omaha:"4 en mano — se usan exactamente 2", vs_draw5:"5 en mano, cambias hasta 3", vs_three:"3 cartas, una ronda rápida", vs_carib:"todos contra el crupier",
@@ -1662,6 +1706,7 @@ rules_carib:"<p>Se juega contra <b>el crupier</b> (la casa), no contra los demá
 
 /* ---- i18n/ar.js ---- */
 LANG.ar = {
+pnAvatar:'اختيار الصورة الرمزية',
 pokerTitle:"بوكر", tagline:"خمسة أنواع من البوكر — ضد الحاسوب، على هاتف واحد أو أونلاين مع الأصدقاء. رقائق افتراضية فقط.",
 v_holdem:"تكساس هولدم", v_omaha:"أوماها", v_draw5:"بوكر 5 أوراق", v_three:"بوكر 3 أوراق", v_carib:"الكاريبي",
 vs_holdem:"ورقتان في اليد و5 على الطاولة", vs_omaha:"4 في اليد — تستخدم 2 بالضبط", vs_draw5:"5 في اليد وتبدّل حتى 3", vs_three:"3 أوراق وجولة واحدة سريعة", vs_carib:"الجميع ضد الموزّع",
@@ -1966,13 +2011,60 @@ function lastActLabel(v, s) {
 
 /* ---------- render ---------- */
 /* six fixed slots, clockwise from me at the bottom; side slots stay above and below the board's band */
-const SLOT = [{ x: 50, y: 91, cx: 50, cy: 73, dx: 67, dy: 84 }, { x: 11, y: 67, cx: 30, cy: 62, dx: 24, dy: 55 }, { x: 11, y: 24, cx: 30, cy: 27, dx: 27, dy: 13 },
-  { x: 50, y: 7, cx: 50, cy: 21, dx: 72, dy: 12 }, { x: 89, y: 24, cx: 70, cy: 27, dx: 73, dy: 13 }, { x: 89, y: 67, cx: 70, cy: 62, dx: 76, dy: 55 }];
+const SLOT = [{ x: 50, y: 91, cx: 50, cy: 73, dx: 67, dy: 84 }, { x: 11, y: 67, cx: 30, cy: 62, dx: 24, dy: 55 }, { x: 11, y: 18, cx: 32, cy: 27, dx: 27, dy: 13 },
+  { x: 50, y: 7, cx: 50, cy: 21, dx: 72, dy: 12 }, { x: 89, y: 18, cx: 68, cy: 27, dx: 73, dy: 13 }, { x: 89, y: 67, cx: 70, cy: 62, dx: 76, dy: 55 }];
 const SLOTS_N = { 1: [0], 2: [0, 3], 3: [0, 2, 4], 4: [0, 2, 3, 4], 5: [0, 1, 2, 4, 5], 6: [0, 1, 2, 3, 4, 5] };
 function seatPos(k, n) {
   const slot = (SLOTS_N[n] || SLOTS_N[6])[k], sl = SLOT[slot], w = $('#twrap').clientWidth || 360, h = $('#twrap').clientHeight || 400;
   const half = (w < 380 ? 80 : 92) / 2 + 2, clampX = x => Math.max(half, Math.min(w - half, x / 100 * w)) / w * 100, clampY = y => Math.max(36, Math.min(h - 30, y / 100 * h)) / h * 100;
   return { slot, x: clampX(sl.x), y: clampY(sl.y), cx: sl.cx, cy: sl.cy };
+}
+/* Presentation helpers: consume only the already authorized seat view. */
+document.documentElement.classList.toggle('pn-fast',FAST);
+let PN_PREV = null;
+function pnAvatar(v, s) {
+  if (G.mode !== 'two' && s === v.seat) return Math.max(1, Math.min(12, Number(ST.avatar) || 1));
+  if (G.mode === 'online' && !isBot(s)) return 1 + Array.from(nameOf(v,s)).reduce((h,c) => (h*31+c.codePointAt(0))>>>0,0)%12;
+  return 1 + s%12;
+}
+function pnStack(amount) {
+  const values = [1000,500,100,25,5,1], colors = ['var(--pn-yellow)','var(--pn-purple)','var(--pn-black)','var(--pn-green)','var(--pn-red)','var(--pn-white)'];
+  let left = amount, layers = '';
+  values.forEach((v,k) => { const count = Math.min(3, Math.floor(left/v)); left %= v; for(let j=0;j<count;j++) layers += '<ellipse cx="18" cy="' + (27-layers.split('<ellipse').length*2) + '" rx="14" ry="5" fill="'+colors[k]+'" stroke="var(--pn-white)" stroke-dasharray="4 3" stroke-width="2"/>'; });
+  return '<svg class="pn-stack" viewBox="0 0 36 32" aria-hidden="true">'+layers+'</svg>';
+}
+function pnFly(from, to, kind, delay) {
+  if (FAST || matchMedia('(prefers-reduced-motion: reduce)').matches || !from || !to) return;
+  if (delay) { setTimeout(() => pnFly(from, to, kind), delay); return; }
+  if (typeof from === 'string') from = $(from); if (typeof to === 'string') to = $(to);     // selectors are resolved when the flight starts (the table may have been redrawn)
+  if (!from || !to || !from.isConnected || !to.isConnected) return;
+  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect(); if (!a.width || !b.width) return;
+  const el = document.createElement('div');
+  el.className = 'pn-flight ' + (kind === 'card' ? 'pc bk' : ''); if (kind !== 'card') el.innerHTML = pnStack(100);
+  Object.assign(el.style, { left: a.left + a.width / 2 + 'px', top: a.top + a.height / 2 + 'px' }); document.body.appendChild(el);
+  const dx = b.left + b.width / 2 - a.left - a.width / 2, dy = b.top + b.height / 2 - a.top - a.height / 2;
+  const anim = el.animate([{ transform: 'translate(-50%,-50%) scale(.6)', opacity: 0 }, { opacity: 1, offset: .15 }, { transform: 'translate(calc(-50% + ' + dx + 'px),calc(-50% + ' + dy + 'px)) scale(.8)', opacity: 0 }], { duration: 480, easing: 'ease-out' });
+  anim.onfinish = () => el.remove(); setTimeout(() => el.remove(), 700);
+}
+/* animations answer what changed between the previous view and this one; the game itself never waits for them.
+   A hand is identified by match id + hand number (v.no) — handNo grows when a hand ends, so it can't be used. */
+function pnDecorate(v) {
+  document.documentElement.classList.toggle('pn-fast', FAST);
+  $('#tMsg').classList.toggle('pn-result', v.phase === 'end');
+  const P = PN_PREV, same = P && P.id === G.id && P.no === v.no && P.g === v.g;
+  const seat = s => '#seats .st[data-seat="' + s + '"]', bt = s => '#seats .bt[data-bs="' + s + '"]', mid = '.mid';
+  if (!same && v.phase !== 'wait') {                                      // a new hand: one card flies to each seat in it
+    const from = v.dealer != null && $(seat(v.dealer)) ? seat(v.dealer) : mid;
+    v.st.forEach((st, s) => { if (st !== 'none') pnFly(from, seat(s), 'card', s * 70); });
+  } else if (same) {
+    v.bet.forEach((x, s) => { if (x > (P.bet[s] || 0)) pnFly(seat(s), $(bt(s)) ? bt(s) : mid, 'chips'); });   // a new bet: seat → its chips
+    if (P.bet.some(x => x > 0) && v.bet.every(x => x === 0)) P.bet.forEach((x, s) => { if (x > 0) pnFly(seat(s), mid, 'chips'); });  // round over: chips to the pot
+    if (v.phase === 'end' && P.phase !== 'end') {
+      (v.res ? v.res.won : []).forEach((w, s) => { if (w > 0) pnFly(mid, seat(s), 'chips', 150); });                     // the pot goes to its winners
+      $$('#seats .cs.up .pc').forEach((el, i) => { el.classList.add('pn-showdown'); el.style.animationDelay = (i % 5) * 60 + 'ms'; });
+    }
+  }
+  PN_PREV = { id: G.id, no: v.no, g: v.g, phase: v.phase, bet: v.bet.slice() };
 }
 function renderGame() {
   if (SCREEN !== 'game' || !G) return;
@@ -1996,7 +2088,7 @@ function renderGame() {
   const dr = $('#dRow');
   if (v.g === 'carib' && v.dealerCards) { dr.classList.remove('hide'); dr.innerHTML = '<div class="dlab">' + esc(T('dealer')) + '</div><div class="dcards">' + v.dealerCards.map(c => cardHTML(c)).join('') + '</div>'; } else dr.classList.add('hide');
   // pot
-  const potTxt = v.pot ? '<span>' + esc(T('pot')) + ' <b>' + chips(v.pot) + '</b></span>' : '';
+  const potTxt = v.pot ? '<span>' + pnStack(v.pot) + esc(T('pot')) + ' <b>' + chips(v.pot) + '</b></span>' : '';
   $('#pot').innerHTML = v.g === 'carib' ? '' : potTxt;
   // message
   let msg = '';
@@ -2019,13 +2111,13 @@ function renderGame() {
     const dot = G.mode === 'online' && !isBot(s) ? '<span class="dot ' + (seatOnline(s) ? (sittingOut(s) ? 'sub' : '') : 'off') + '"></span>' : '';
     const nm = mine ? (G.mode === 'two' ? nameOf(v, s) : T('you')) : nameOf(v, s);
     const tm = v.turn === s && !end && G.tEnd ? '<div class="tm" data-tm><i></i></div>' : '';
-    h += '<div class="' + cls + '" data-seat="' + s + '" style="left:' + p.x + '%;top:' + p.y + '%">' + cards + '<div class="bx">' + (lab ? '<span class="ac' + (hot ? ' hot' : '') + '">' + esc(lab) + '</span>' : '') +
-      (s === v.dealer && v.g !== 'carib' && v.phase !== 'wait' ? '<span class="dbadge ' + (p.x > 50 ? 'l' : 'r') + '" aria-label="dealer">D</span>' : '') + '<span class="nm">' + dot + esc(nm) + '</span><span class="sk">' + (v.out[s] ? '—' : chips(v.stacks[s])) + '</span>' + tm + '</div></div>';
-    const th2 = $('#twrap').clientHeight || 400, cy = p.slot === 3 ? p.y + 62 / th2 * 100 : p.slot === 0 ? p.y - 60 / th2 * 100 : p.cy;
-    if (v.bet[s] > 0 && !end) h += '<div class="bt" style="left:' + p.cx + '%;top:' + cy + '%"><span class="chip"></span>' + esc(NF(v.bet[s])) + '</div>';
+    h += '<div class="' + cls + '" data-seat="' + s + '" style="left:' + p.x + '%;top:' + p.y + '%">' + cards + '<div class="bx"><div class="pn-avatar"><img src="av-' + String(pnAvatar(v, s)).padStart(2, '0') + '.webp" alt="">' + tm + '</div>' + (lab ? '<span class="ac' + (hot ? ' hot' : '') + '">' + esc(lab) + '</span>' : '') +
+      (s === v.dealer && v.g !== 'carib' && v.phase !== 'wait' ? '<span class="dbadge ' + (p.x > 50 ? 'l' : 'r') + '" aria-label="dealer">D</span>' : '') + '<span class="nm">' + dot + esc(nm) + '</span><span class="sk">' + (v.out[s] ? '—' : chips(v.stacks[s])) + '</span></div></div>';
+    const th2 = $('#twrap').clientHeight || 400, cy = p.slot === 3 ? p.y + 84 / th2 * 100 : p.slot === 0 ? p.y - 60 / th2 * 100 : (p.slot === 2 || p.slot === 4) ? Math.min(p.cy, p.y + 4) : p.cy;   // top: below its label; upper sides: level with the seat, above the board
+    if (v.bet[s] > 0 && !end) h += '<div class="bt" data-bs="' + s + '" style="left:' + p.cx + '%;top:' + cy + '%">' + pnStack(v.bet[s]) + iso(NF(v.bet[s])) + '</div>';
   }
   $('#seats').innerHTML = h;
-  renderMine(v); renderBar(v); renderNet(); tickTimers();
+  renderMine(v); renderBar(v); renderNet(); tickTimers(); pnDecorate(v);
   if (G.mode === 'two' && PASS_ON) passScreen(v);
 }
 function netLbl(v, s) { const x = v.res.net[s]; if (v.g === 'carib' && v.res.out && v.res.out[s]) { const o = v.res.out[s]; if (o === 'fold') return T('aFold'); if (o === 'push') return T('push'); } return iso(x > 0 ? '+' + NF(x) : x < 0 ? '−' + NF(-x) : '±0'); }
@@ -2109,7 +2201,7 @@ function tickTimers() {
   const tot = G.cfg && G.cfg.timer ? G.cfg.timer * 1000 : 30000;
   if (G.tEnd) {
     const left = Math.max(0, G.tEnd - Date.now()), pct = left / tot * 100;
-    $$('[data-tm]').forEach(t => { t.firstChild.style.width = pct + '%'; t.classList.toggle('low', left < 8000); });
+    $$('[data-tm]').forEach(t => { t.style.setProperty('--pn-time', Math.min(100, pct) + '%'); t.classList.toggle('low', left < 10000); });
     const mt = $('#myTm'); if (mt && !mt.classList.contains('hide')) { mt.firstChild.style.width = pct + '%'; mt.classList.toggle('low', left < 8000); if (left < 5500 && left > 0 && Math.floor(left / 1000) !== G._lastTick) { G._lastTick = Math.floor(left / 1000); beep('tick'); } }
   }
   const nx = G.nextAt; $$('[data-next]').forEach(el => el.textContent = nx ? iso(String(Math.max(0, Math.ceil((nx - Date.now()) / 1000)))) : '');
@@ -2516,7 +2608,7 @@ function renderHome() {
   applyLang();
   $('#verLbl').textContent = 'v' + APP_VERSION;
   $('#heroFan').innerHTML = [12, 25, 37, 50].map((c, i) => cardHTML(c, '', 'style="--w:54px;transform:translateX(-50%) rotate(' + (-24 + i * 16) + 'deg)"')).join('');
-  $('#vgrid').innerHTML = VARS.map(x => '<button class="vcard ' + (ST.variant === x ? 'on' : '') + '" data-v="' + x + '"><b>' + esc(vName(x)) + '</b><span>' + esc(T('vs_' + x)) + '</span></button>').join('');
+  $('#vgrid').innerHTML = VARS.map(x => '<button class="vcard ' + (ST.variant === x ? 'on' : '') + '" data-v="' + x + '"><div class="pn-game-art" aria-hidden="true">' + VSAMPLE[x].slice(0, 3).map(c => cardHTML(c)).join('') + '</div><b>' + esc(vName(x)) + '</b><span>' + esc(T('vs_' + x)) + '</span></button>').join('');
   $('#mCpuSub').textContent = ST.variant === 'carib' ? T('caribCpuSub') : T('vsCpuSub');
   const c = $('#mCont'), g = G;
   if (g && ((g.M && !g.M.over) || g.mode === 'online')) {
@@ -2590,6 +2682,10 @@ function renderSettings() {
     '<div class="card"><h3>' + esc(T('data')) + '</h3><div class="row"><button class="btn" id="sBackup">⬇️ ' + esc(T('backup')) + '</button><label class="btn" for="sRestore">⬆️ ' + esc(T('restore')) + '</label><input type="file" id="sRestore" accept="application/json,.json" class="hide"></div><p class="muted">' + esc(T('dataNote')) + '</p>' +
     '<div class="row"><button class="btn ghosty" id="sTour">🧭 ' + esc(T('tourAgain')) + '</button><button class="btn ghosty" id="sReset" style="color:var(--bad);border-color:var(--bad)">🗑️ ' + esc(T('deleteAll')) + '</button></div></div>' +
     '<div class="badge">PokerNest v' + APP_VERSION + ' · © AppNest 2026</div>';
+  const avatars = document.createElement('div'); avatars.className = 'card';
+  avatars.innerHTML = '<h3>' + esc(T('pnAvatar')) + '</h3><div class="pn-avatar-grid">' + Array.from({length:12}, (_,i) => '<button class="pn-avatar-pick" data-pn-avatar="' + (i+1) + '" aria-label="' + esc(T('pnAvatar')) + ' ' + iso(i+1) + '" aria-pressed="' + (Number(ST.avatar) === i+1) + '"><img src="av-' + String(i+1).padStart(2,'0') + '.webp" alt=""></button>').join('') + '</div>';
+  b.insertBefore(avatars, b.children[1]);
+  avatars.querySelectorAll('[data-pn-avatar]').forEach(x => x.onclick = () => { ST.avatar = Number(x.dataset.pnAvatar); saveST(); renderSettings(); });
   $('#sName').onchange = e => { ST.name = e.target.value.trim().slice(0, 20); saveST(); };
   $('#sLang').onchange = e => { ST.lang = e.target.value; saveST(); applyLang(); renderSettings(); renderHome(); };
   $$('#setBody [data-theme-pick]').forEach(x => x.onclick = () => { ST.theme = x.dataset.themePick; saveST(); applyLook(); renderSettings(); });
